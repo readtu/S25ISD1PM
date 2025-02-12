@@ -2,7 +2,10 @@
 {% block title %}Buildings{% endblock %}
 {% block body %}
 <section class="container py-5">
-    <h1>Buildings</h1>
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Buildings</h1>
+        <a href="{% url 'create_building' %}" class="btn btn-primary">Create</a>
+    </div>
     {% if buildings %}
     {% for building in buildings %}
     <div class="card">
