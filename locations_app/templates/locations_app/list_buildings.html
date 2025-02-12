@@ -1,0 +1,16 @@
+{% extends 'chairs_app/base.html' %}
+{% block title %}Buildings{% endblock %}
+{% block body %}
+<section class="container py-5">
+    <h1>Buildings</h1>
+    {% if buildings %}
+    {% for building in buildings %}
+    <div class="card">
+        <div class="card-body">{{building}}</div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="alert alert-info">No buildings are available.</div>
+    {% endif %}
+</section>
+{% endblock %}

@@ -5,5 +5,6 @@ from django.urls import include, path
 
 urlpatterns = [
     path("", include("chairs_app.urls")),
+    path("", include("locations_app.urls")),
     *urlpatterns,
 ]

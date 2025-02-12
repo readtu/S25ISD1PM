@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "chairs_app",
+    "locations_app",
 ]
 
 MIDDLEWARE = [
