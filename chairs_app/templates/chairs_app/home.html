@@ -2,6 +2,16 @@
 {% block title %}Home{% endblock %}
 {% block body %}
 <section class="container py-5">
-    <h1>Home</h1>
+    <h1>Chair</h1>
+
+    <form method="POST" action="https://cse.taylor.edu/~cos143/echoForm.php" id="form">
+    <fieldset>
+    <legend>Login form</legend>
+    username <input type="text" id="username" name="username" required>
+    password<input type="password" id="password" name="password" required>
+    <input type="submit" value="Submit Form">
+    </fieldset>
+    </form>
+    
 </section>
 {% endblock %}
