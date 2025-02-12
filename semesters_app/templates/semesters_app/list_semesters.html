@@ -1,0 +1,16 @@
+{% extends 'chairs_app/base.html' %}
+{% block title %}Semesters{% endblock %}
+{% block body %}
+<section class="container py-5">
+    <h1>Semesters</h1>
+    {% if semesters %}
+    {% for semester in semesters %}
+    <div class="card">
+        <div class="card-body">{{semester}}</div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="alert alert-info">No semesters are available.</div>
+    {% endif %}
+</section>
+{% endblock %}
