@@ -29,6 +29,28 @@
                             <li><a href="{% url 'list_rooms' %}" class="dropdown-item">Rooms</a></li>
                         </ul>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Changes
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'list_changes' %}"
+                                    class="d-flex justify-content-between align-items-center dropdown-item">All <span
+                                        class="badge bg-primary">{{all_changes|length}}</span></a></li>
+                            <li><a href="{% url 'list_changes' %}"
+                                    class="d-flex justify-content-between align-items-center dropdown-item">Recent <span
+                                        class="badge bg-primary">{{recent_changes|length}}</span></a></li>
+                            <li><a href="{% url 'list_changes' %}?status=pending"
+                                    class="d-flex justify-content-between align-items-center dropdown-item">Pending
+                                    <span class="badge bg-warning">{{pending_changes|length}}</span></a></li>
+                            <li><a href="{% url 'list_changes' %}?status=accepted"
+                                    class="d-flex justify-content-between align-items-center dropdown-item">Accepted
+                                    <span class="badge bg-success">{{accepted_changes|length}}</span></a></li>
+                            <li><a href="{% url 'list_changes' %}?status=rejected"
+                                    class="d-flex justify-content-between align-items-center dropdown-item">Rejected
+                                    <span class="badge bg-danger">{{rejected_changes|length}}</span></a></li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>

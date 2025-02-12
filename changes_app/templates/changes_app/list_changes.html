@@ -1,0 +1,16 @@
+{% extends 'chairs_app/base.html' %}
+{% block title %}Changes{% endblock %}
+{% block body %}
+<section class="container py-5">
+    <h1>Changes</h1>
+    {% if changes %}
+    {% for change in changes %}
+    <div class="card">
+        <div class="card-body">{{change}}</div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="alert alert-info">No changes are available.</div>
+    {% endif %}
+</section>
+{% endblock %}
