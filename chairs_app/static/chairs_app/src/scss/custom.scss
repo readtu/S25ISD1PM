@@ -1,0 +1,57 @@
+@font-face {
+    font-family: "Instrument Sans";
+    font-style: italic;
+    font-weight: 400 700;
+    font-stretch: 100%;
+    font-display: swap;
+    src: url("/static/chairs_app/dist/font/InstrumentSans-Italic-VariableFont_wdth,wght.ttf") format('woff2');
+}
+
+@font-face {
+    font-family: "Instrument Sans";
+    font-style: normal;
+    font-weight: 400 700;
+    font-stretch: 100%;
+    font-display: swap;
+    src: url("/static/chairs_app/dist/font/InstrumentSans-VariableFont_wdth,wght.ttf") format('woff2');
+}
+
+$font-family-sans-serif: "Instrument Sans", serif;
+
+$primary: hsl(180deg 30% 35%);
+$secondary: hsl(220deg 10% 40%);
+$success: hsl(140deg 30% 45%);
+$info: hsl(220deg 10% 50%);
+$light: hsl(180deg 10% 90%);
+$component-active-bg: $primary;
+
+@import "./bootstrap/_functions.scss";
+@import "./bootstrap/_variables.scss";
+
+$theme-colors: map-merge($theme-colors,
+        ("primary": $primary,
+            "secondary": $secondary,
+            "success": $success,
+            "info": $info,
+            "light": $light,
+        ));
+
+@import "./bootstrap/_maps.scss";
+
+$theme-colors-bg-subtle: map-merge($theme-colors-bg-subtle,
+        ("primary": tint-color($primary, 75%),
+            "secondary": tint-color($secondary, 75%),
+            "success": tint-color($success, 75%),
+            "info": tint-color($info, 75%),
+            "light": $light),
+    );
+
+$theme-colors-border-subtle: map-merge($theme-colors-border-subtle,
+        ("primary": tint-color($primary, 50%),
+            "secondary": tint-color($secondary, 50%),
+            "success": tint-color($success, 50%),
+            "info": tint-color($info, 50%),
+            "light": tint-color($light, 50%)),
+    );
+
+@import "./bootstrap/bootstrap.scss";
