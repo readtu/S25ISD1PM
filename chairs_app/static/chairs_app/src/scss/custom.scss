@@ -57,3 +57,7 @@ $theme-colors-border-subtle: map-merge($theme-colors-border-subtle,
 @import "./bootstrap/bootstrap.scss";
 
 @import "./bootstrap-icons.scss";
+
+.hide-empty:empty {
+    display: none;
+}

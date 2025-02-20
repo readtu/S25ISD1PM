@@ -4,6 +4,7 @@ from uuid import uuid4
 from django.db.models import Model
 from django.db.models.enums import IntegerChoices
 from django.db.models.fields import IntegerField, UUIDField
+from django.urls import reverse
 
 
 class Term(IntegerChoices):
@@ -28,8 +29,16 @@ class Semester(Model):
     year = IntegerField()
     term = IntegerField(choices=Term.choices)
 
+    class Meta:
+        ordering = ("-year", "-term")
+        get_latest_by = ordering
+        unique_together = ("year", "term")
+
     def __str__(self) -> str:
         return self.name
+
+    def get_absolute_url(self) -> str:
+        return reverse("view_semester", kwargs={"uuid": self.uuid})
 
     @property
     def academic_year(self) -> AcademicYear:

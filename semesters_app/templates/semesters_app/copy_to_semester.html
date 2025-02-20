@@ -5,5 +5,25 @@
     <div class="mb-3">
         <h1 class="mb-0">Copy to {{semester}}</h1>
     </div>
+    <div>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="copy_from" class="form-label">Copy from</label>
+                <select id="copy_from" class="form-select" name="from">
+                    {% for year, semesters in years.items %}
+                    <optgroup label="{{year}}">
+                        {% for semester in semesters %}
+                        <option value="{{semester.uuid}}">{{semester}}</option>
+                        {% endfor %}
+                    </optgroup>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mt-4">
+                {% csrf_token %}
+                <input type="submit" value="Copy" class="btn btn-primary">
+            </div>
+        </form>
+    </div>
 </section>
 {% endblock %}

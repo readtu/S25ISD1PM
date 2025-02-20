@@ -1,0 +1,19 @@
+{% extends 'chairs_app/base.html' %}
+{% block title %}{{semester}}{% endblock %}
+{% block body %}
+<section class="container py-5">
+    <div class="mb-5">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'list_semesters' %}">Semesters</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{semester}}</li>
+            </ol>
+        </nav>
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <h1 class="mb-0">{{semester}}</h1>
+            <a href="{% url 'copy_to_semester' semester.uuid %}" class="btn btn-light"><i
+                    class="bi bi-upload me-2"></i>Copy to</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

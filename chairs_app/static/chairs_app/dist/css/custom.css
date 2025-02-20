@@ -20085,4 +20085,8 @@ textarea.form-control-lg {
   content: "賈";
 }
 
+.hide-empty:empty {
+  display: none;
+}
+
 /*# sourceMappingURL=custom.css.map */

@@ -14,9 +14,9 @@ urlpatterns = [
         name=views.create_semester.__name__,
     ),
     path(
-        "semesters/<uuid:uuid>/edit",
-        views.edit_semester,
-        name=views.edit_semester.__name__,
+        "semesters/<uuid:uuid>",
+        views.view_semester,
+        name=views.view_semester.__name__,
     ),
     path(
         "semesters/<uuid:uuid>/copy_to",
