@@ -3,6 +3,13 @@
 {% block body %}
 <section class="container py-5">
     <div class="mb-3">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'list_semesters' %}">Semesters</a></li>
+                <li class="breadcrumb-item"><a href="{{semester.get_absolute_url}}">{{semester}}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Copy to</li>
+            </ol>
+        </nav>
         <h1 class="mb-0">Copy to {{semester}}</h1>
     </div>
     <div>

@@ -1,0 +1,6 @@
+[tool.ruff]
+select = ["ALL"]
+ignore = [
+    "D100",
+    "D209"
+]

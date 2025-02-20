@@ -1,4 +1,4 @@
-from typing import Iterable
+from collections.abc import Iterable
 from uuid import uuid4
 
 from django.db.models import Model
@@ -8,6 +8,11 @@ from django.urls import reverse
 
 
 class Term(IntegerChoices):
+    """Represents which term of the year a semester takes place.
+
+    These are enumerated in order they appear on the calendar,
+    so they can be used to sort a sequence of Semesters in chronological order."""
+
     INTERTERM = 1, "Interterm"
     SPRING = 2, "Spring"
     SUMMER = 3, "Summer"
@@ -15,12 +20,22 @@ class Term(IntegerChoices):
 
 
 class AcademicYear(int):
+    """Represents an academic year, like 2024-2025.
+
+    Is and behaves like a normal `int` except the modifications made below."""
+
     def __contains__(self, value: "Semester | AcademicYear") -> bool:
+        """Determine if a given semester is within this academic year.
+
+        For example, Interterm 2024 is `in` the 2024-2025 academic year."""
         if isinstance(value, Semester):
             return value.academic_year == self
         return value == self or value - 1 == self
 
     def __str__(self) -> str:
+        """Return a hyphenated representation of this academic year.
+
+        For example, `AcademicYear(2024)` prints out as `2024-2025`."""
         return f"{type(super()).__str__(self)}-{type(super()).__str__(self + 1)}"
 
 

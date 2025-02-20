@@ -13,12 +13,12 @@
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="group_by" id="academic_year"
                         value="academic_year" {% if group_by_academic_year %} checked {% endif %} data-refresh>
-                    <label class="form-check-label" for="academic_year">Academic Year</label>
+                    <label class="form-check-label" for="academic_year">Academic year</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="group_by" id="chronological_year"
-                        value="chronological_year" {% if not group_by_academic_year %} checked {% endif %} data-refresh>
-                    <label class="form-check-label" for="chronological_year">Chronological year</label>
+                    <input class="form-check-input" type="radio" name="group_by" id="calendar_year"
+                        value="calendar_year" {% if not group_by_academic_year %} checked {% endif %} data-refresh>
+                    <label class="form-check-label" for="calendar_year">Calendar year</label>
                 </div>
             </fieldset>
         </form>
