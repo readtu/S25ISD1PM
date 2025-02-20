@@ -5,5 +5,24 @@
     <div class="mb-3">
         <h1 class="mb-0">Create Building</h1>
     </div>
+    <div>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="name" class="form-label">Full name</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Name…" maxlength="255"
+                    required>
+            </div>
+            <div class="mb-3">
+                <label for="name" class="form-label">Identifier</label>
+                <input type="text" class="form-control" id="identifier" name="identifier" placeholder="Identifier…"
+                    maxlength="10" pattern="[A-Z]+" required>
+                <div class="form-text">Only uppercase letters allowed.</div>
+            </div>
+            <div class="mt-4">
+                {% csrf_token %}
+                <input type="submit" value="Create" class="btn btn-primary">
+            </div>
+        </form>
+    </div>
 </section>
 {% endblock %}

@@ -1,9 +1,35 @@
 {% extends 'chairs_app/base.html' %}
-{% block title %}Edit {{building}}{% endblock %}
+{% block title %}Edit {{building.name}}{% endblock %}
 {% block body %}
 <section class="container py-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'list_buildings' %}">Buildings</a></li>
+            <li class="breadcrumb-item"><a href="{{building.get_absolute_url}}">{{building.name}}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit</li>
+        </ol>
+    </nav>
     <div class="mb-3">
-        <h1 class="mb-0">Edit {{building}}</h1>
+        <h1 class="mb-0">Edit {{building.name}}</h1>
+    </div>
+    <div>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="name" class="form-label">Full name</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Name…" maxlength="255"
+                    value="{{building.name}}" required>
+            </div>
+            <div class="mb-3">
+                <label for="name" class="form-label">Identifier</label>
+                <input type="text" class="form-control" id="identifier" name="identifier" placeholder="Identifier…"
+                    value="{{building.identifier}}" maxlength="10" pattern="[A-Z]+" required>
+                <div class="form-text">Only uppercase letters allowed.</div>
+            </div>
+            <div class="mt-4">
+                {% csrf_token %}
+                <input type="submit" value="Save" class="btn btn-primary">
+            </div>
+        </form>
     </div>
 </section>
 {% endblock %}
