@@ -23,4 +23,9 @@ urlpatterns = [
         views.copy_to_semester,
         name=views.copy_to_semester.__name__,
     ),
+    path(
+        "semesters/<uuid:uuid>/delete",
+        views.delete_semester,
+        name=views.delete_semester.__name__,
+    ),
 ]

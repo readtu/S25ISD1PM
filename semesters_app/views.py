@@ -2,7 +2,7 @@ from django.contrib.messages import success
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.timezone import now
-from django.views.decorators.http import require_GET, require_http_methods
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from semesters_app.models import (
     AcademicYear,
@@ -73,3 +73,12 @@ def copy_to_semester(request: HttpRequest, uuid: str) -> HttpResponse:
         "semester": semester,
         "years": years,
     })
+
+
+@require_POST
+def delete_semester(request: HttpRequest, uuid: str) -> HttpResponse:
+    semester = get_object_or_404(Semester, uuid=uuid)
+    name = str(semester)
+    semester.delete()
+    success(request, f"Deleted {name}.")
+    return redirect(list_semesters.__name__)
