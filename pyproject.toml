@@ -1,6 +1,16 @@
 [tool.ruff]
+line-length = 100
 select = ["ALL"]
 ignore = [
     "D100",
-    "D209"
+    "D209",
+    "DJ001",
+    "EM101",
+    "TD002",
+    "TD003",
+]
+extend-exclude = [
+    "**/migrations/**.py",
+    "*_app/__init__.py",
+    "*_project/__init__.py",
 ]

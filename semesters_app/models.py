@@ -1,3 +1,5 @@
+# ruff: noqa: D105
+
 from collections.abc import Iterable
 from uuid import uuid4
 
@@ -39,12 +41,12 @@ class AcademicYear(int):
         return f"{type(super()).__str__(self)}-{type(super()).__str__(self + 1)}"
 
 
-class Semester(Model):
+class Semester(Model):  # noqa: D101
     uuid = UUIDField(primary_key=True, default=uuid4)
     year = IntegerField()
     term = IntegerField(choices=Term.choices)
 
-    class Meta:
+    class Meta:  # noqa: D106
         ordering = ("-year", "-term")
         get_latest_by = ordering
         unique_together = ("year", "term")
@@ -52,7 +54,7 @@ class Semester(Model):
     def __str__(self) -> str:
         return self.name
 
-    def get_absolute_url(self) -> str:
+    def get_absolute_url(self) -> str:  # noqa: D102
         return reverse("view_semester", kwargs={"uuid": self.uuid})
 
     @property
