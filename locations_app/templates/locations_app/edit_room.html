@@ -1,9 +1,41 @@
 {% extends 'chairs_app/base.html' %}
 {% block title %}Edit {{room}}{% endblock %}
 {% block body %}
+<section class="container pt-5 pb-0">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'list_rooms' %}">Rooms</a></li>
+            <li class="breadcrumb-item"><a href="{{room.get_absolute_url}}">{{room}}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit</li>
+        </ol>
+    </nav>
+    <h1 class="mb-0">Edit {{room}}</h1>
+</section>
 <section class="container py-5">
-    <div class="mb-3">
-        <h1 class="mb-0">Edit {{room}}</h1>
-    </div>
+    <form method="POST">
+        <div class="alert alert-info mb-4">Supply either a unique name for the room, a code that will always be
+            displayed alongside the building name, or both.</div>
+        <div class="mb-3">
+            <label for="name" class="form-label">Name (optional)</label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="Name…" maxlength="255" value="{{room.name|default:''}}">
+        </div>
+        <div class="mb-3">
+            <label for="name" class="form-label">Code (optional)</label>
+            <div class="input-group">
+                <span class="input-group-text">{{room.building}}</span>
+                <input type="text" class="form-control" id="code" name="code" placeholder="Code…" maxlength="10"
+                    pattern="[-A-Z0-9]+" required value="{{room.code}}">
+            </div>
+            <div class="form-text">Only numbers, uppercase letters, and hyphens allowed.</div>
+        </div>
+        <div class="mb-3 form-check">
+            <input class="form-check-input" type="checkbox" name="available" id="available" {%if room.available %}checked{%endif%}>
+            <label class="form-check-label" for="available">Is this room available?</label>
+        </div>
+        <div class="mt-4">
+            {% csrf_token %}
+            <input type="submit" value="Save" class="btn btn-primary">
+        </div>
+    </form>
 </section>
 {% endblock %}

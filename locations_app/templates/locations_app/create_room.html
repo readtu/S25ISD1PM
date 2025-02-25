@@ -1,9 +1,37 @@
 {% extends 'chairs_app/base.html' %}
 {% block title %}Create Room{% endblock %}
 {% block body %}
+<section class="container pt-5 pb-0">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'list_buildings' %}">Buildings</a></li>
+            <li class="breadcrumb-item"><a href="{{building.get_absolute_url}}">{{building.name}}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Create Room</li>
+        </ol>
+    </nav>
+    <h1 class="mb-0">Create Room</h1>
+</section>
 <section class="container py-5">
-    <div class="mb-3">
-        <h1 class="mb-0">Create Room</h1>
-    </div>
+    <form method="POST">
+        <div class="alert alert-info mb-4">Supply either a unique name for the room, a code that will always be
+            displayed alongside the building name, or both.</div>
+        <div class="mb-3">
+            <label for="name" class="form-label">Name (optional)</label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="Name…" maxlength="255">
+        </div>
+        <div class="mb-3">
+            <label for="name" class="form-label">Code (optional)</label>
+            <div class="input-group">
+                <span class="input-group-text">{{building}}</span>
+                <input type="text" class="form-control" id="code" name="code" placeholder="Code…" maxlength="10"
+                    pattern="[-A-Z0-9]+" required>
+            </div>
+            <div class="form-text">Only numbers, uppercase letters, and hyphens allowed.</div>
+        </div>
+        <div class="mt-4">
+            {% csrf_token %}
+            <input type="submit" value="Create" class="btn btn-primary">
+        </div>
+    </form>
 </section>
 {% endblock %}

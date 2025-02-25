@@ -1,7 +1,7 @@
 {% extends 'chairs_app/base.html' %}
 {% block title %}{{building.name}}{% endblock %}
 {% block body %}
-<section class="container py-5">
+<section class="container pt-5 pb-0">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'list_buildings' %}">Buildings</a></li>
@@ -11,7 +11,10 @@
     <div class="mb-3 d-flex justify-content-between align-items-center">
         <h1 class="mb-0">{{building.name}}</h1>
         <div class="d-flex gap-2">
-            <a href="{% url 'edit_building' building.uuid %}" class="btn btn-light"><i class="bi bi-pencil me-2"></i>Edit</a>
+            <a href="{% url 'create_room' building.uuid %}" class="btn btn-primary"><i
+                    class="bi bi-plus me-2"></i>Create Room</a>
+            <a href="{% url 'edit_building' building.uuid %}" class="btn btn-light"><i
+                    class="bi bi-pencil me-2"></i>Edit</a>
             <form action="{% url 'delete_building' building.uuid %}" method="POST"
                 data-confirm="Are you sure you want to delete {{building.name}}? This cannot be undone.">
                 {% csrf_token %}
@@ -19,5 +22,40 @@
             </form>
         </div>
     </div>
+    {% if building.available %}
+    <div class="alert alert-success">This building is available.</div>
+    {% else %}
+    <div class="alert alert-danger"><strong>Note</strong>: this building is unavailable.</div>
+    {% endif %}
+</section>
+<section class="container py-5">
+    <h2 class="mb-3">Rooms</h2>
+    {% if not building.available %}
+    <div class="alert alert-warning"><strong>Note</strong>: this building is unavailable, so its rooms are as well.</div>
+    {% endif %}
+    {% if building.rooms.count %}
+    <div class="list-group">
+        {% for room in building.rooms.all %}
+        <div class="list-group-item py-3">
+            <div class="row g-0">
+                <div class="col col-6 d-flex justify-content-start align-items-center">
+                    <i
+                        class="bi bi-columns-gap {% if not room.available %} text-danger {% elif not building.available %} text-warning {% else %} text-success {% endif %} me-2"></i>
+                    <a href="{{room.get_absolute_url}}" class="text-reset">{{room}}</a>
+                </div>
+                <div class="col-6 d-flex justify-content-end align-items-center">
+                    {% if room.available %}
+                    <div class="badge {% if not building.available %} bg-warning {% else %} bg-success {% endif %}">Available</div>
+                    {% else %}
+                    <div class="badge bg-danger">Unavailable</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">No rooms for this building are available.</div>
+    {% endif %}
 </section>
 {% endblock %}

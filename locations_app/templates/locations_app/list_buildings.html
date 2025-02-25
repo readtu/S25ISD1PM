@@ -1,34 +1,31 @@
 {% extends 'chairs_app/base.html' %}
 {% block title %}Buildings{% endblock %}
 {% block body %}
-<section class="container py-5">
-    <div class="mb-3 d-flex justify-content-between align-items-center">
+<section class="container pt-5 pb-0">
+    <div class="d-flex justify-content-between align-items-center">
         <h1 class="mb-0">Buildings</h1>
         <a href="{% url 'create_building' %}" class="btn btn-light"><i class="bi bi-plus me-2"></i>Create</a>
     </div>
+</section>
+<section class="container py-5">
     {% if buildings %}
-    <div class="row row-cols-1 row-cols-lg-2 g-3">
+    <div class="list-group">
         {% for building in buildings %}
-        <div class="col">
-            <div class="card p-3">
-                <div class="d-flex gap-3">
-                    <div class="">
-                        <div class="d-flex flex-column align-items-center gap-2">
-                            <i class="bi bi-house text-primary"></i>
-                        </div>
-                    </div>
-                    <div class="">
-                        <div class="mb-1">
-                            <a href="{{building.get_absolute_url}}" class="text-reset">{{building.name}}
-                                ({{building.identifier}})
-                            </a>
-                        </div>
-                        {% if building.available %}
-                        <div class="badge bg-success">Available</div>
-                        {% else %}
-                        <div class="badge bg-danger">Unavailable</div>
-                        {% endif %}
-                    </div>
+        <div class="list-group-item py-3">
+            <div class="row g-0">
+                <div class="col col-6 d-flex justify-content-start align-items-center">
+                    <i
+                        class="bi bi-house {% if building.available %} text-success {% else %} text-danger {% endif %} me-2"></i>
+                    <a href="{{building.get_absolute_url}}" class="text-reset">{{building.name}}
+                        ({{building.identifier}})
+                    </a>
+                </div>
+                <div class="col col-6 d-flex justify-content-end align-items-center">
+                    {% if building.available %}
+                    <div class="badge bg-success">Available</div>
+                    {% else %}
+                    <div class="badge bg-danger">Unavailable</div>
+                    {% endif %}
                 </div>
             </div>
         </div>

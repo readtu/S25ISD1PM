@@ -29,14 +29,14 @@ urlpatterns = [
         name=views.delete_building.__name__,
     ),
     path(
+        "buildings/<uuid:building_uuid>/create-room",
+        views.create_room,
+        name=views.create_room.__name__,
+    ),
+    path(
         "rooms",
         views.list_rooms,
         name=views.list_rooms.__name__,
-    ),
-    path(
-        "rooms/create",
-        views.create_room,
-        name=views.create_room.__name__,
     ),
     path(
         "rooms/<uuid:uuid>",

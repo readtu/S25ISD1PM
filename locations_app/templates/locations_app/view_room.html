@@ -1,10 +1,33 @@
 {% extends 'chairs_app/base.html' %}
 {% block title %}{{room}}{% endblock %}
 {% block body %}
-<section class="container py-5">
+<section class="container pt-5 pb-0">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'list_rooms' %}">Rooms</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{room}}</li>
+        </ol>
+    </nav>
     <div class="mb-3 d-flex justify-content-between align-items-center">
         <h1 class="mb-0">{{room}}</h1>
-        <a href="{% url 'edit_room' room.uuid %}" class="btn btn-primary">Edit</a>
+        <div class="d-flex gap-2">
+            <a href="{% url 'edit_room' room.uuid %}" class="btn btn-light"><i
+                    class="bi bi-pencil me-2"></i>Edit</a>
+            <form action="{% url 'delete_room' room.uuid %}" method="POST"
+                data-confirm="Are you sure you want to delete {{room}}? This cannot be undone.">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-light text-danger"><i class="bi bi-trash me-2"></i>Delete</button>
+            </form>
+        </div>
     </div>
+    <div class="mb-3 card">
+        <div class="card-body"><i class="bi bi-house text-primary me-2"></i> Inside <a
+                href="{{room.building.get_absolute_url}}">{{room.building.name}}</a></div>
+    </div>
+    {% if room.available %}
+    <div class="alert alert-success">This room is available.</div>
+    {% else %}
+    <div class="alert alert-danger"><strong>Note</strong>: this room is unavailable.</div>
+    {% endif %}
 </section>
 {% endblock %}

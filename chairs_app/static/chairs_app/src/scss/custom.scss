@@ -21,6 +21,8 @@ $font-family-sans-serif: "Instrument Sans", serif;
 $primary: hsl(180deg 30% 35%);
 $secondary: hsl(220deg 10% 40%);
 $success: hsl(140deg 30% 45%);
+$warning: hsl(40deg 67% 50%);
+$danger: hsl(340deg 50% 50%);
 $info: hsl(220deg 10% 50%);
 $light: hsl(180deg 10% 90%);
 $component-active-bg: $primary;
@@ -32,6 +34,8 @@ $theme-colors: map-merge($theme-colors,
         ("primary": $primary,
             "secondary": $secondary,
             "success": $success,
+            "warning": $warning,
+            "danger": $danger,
             "info": $info,
             "light": $light,
         ));
@@ -42,6 +46,8 @@ $theme-colors-bg-subtle: map-merge($theme-colors-bg-subtle,
         ("primary": tint-color($primary, 75%),
             "secondary": tint-color($secondary, 75%),
             "success": tint-color($success, 75%),
+            "warning": tint-color($warning, 75%),
+            "danger": tint-color($danger, 75%),
             "info": tint-color($info, 75%),
             "light": $light),
     );
@@ -50,6 +56,8 @@ $theme-colors-border-subtle: map-merge($theme-colors-border-subtle,
         ("primary": tint-color($primary, 50%),
             "secondary": tint-color($secondary, 50%),
             "success": tint-color($success, 50%),
+            "warning": tint-color($warning, 50%),
+            "danger": tint-color($danger, 50%),
             "info": tint-color($info, 50%),
             "light": tint-color($light, 50%)),
     );
