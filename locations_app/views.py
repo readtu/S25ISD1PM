@@ -10,7 +10,7 @@ from locations_app.models import Building, Room
 
 @require_GET
 def list_buildings(request: HttpRequest) -> HttpResponse:
-    buildings = Building.objects.all().order_by("identifier")
+    buildings = Building.objects.all()
     return render(
         request,
         f"locations_app/{list_buildings.__name__}.html",
@@ -75,11 +75,17 @@ def delete_building(request: HttpRequest, uuid: str) -> HttpResponse:
 @require_GET
 def list_rooms(request: HttpRequest) -> HttpResponse:
     rooms = Room.objects.all()
+    group_by_building = request.GET.get("group_by", "building") == "building"
     availability = request.GET.get("availability", "all") == "available"
     if availability:
         rooms = rooms.filter(available=True, building__available=True)
+    groups = {}
+    for room in rooms:
+        groups.setdefault(room.building, []).append(room)
     return render(request, f"locations_app/{list_rooms.__name__}.html", {
         "rooms": rooms,
+        "groups": groups,
+        "group_by_building": group_by_building,
         "availability": availability,
     })
 

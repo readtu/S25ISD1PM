@@ -9,14 +9,14 @@
         </ol>
     </nav>
     <div class="mb-3 d-flex justify-content-between align-items-center">
-        <h1 class="mb-0">{{building.name}}</h1>
+        <h1 class="mb-0">{{building}}</h1>
         <div class="d-flex gap-2">
             <a href="{% url 'create_room' building.uuid %}" class="btn btn-primary"><i
                     class="bi bi-plus me-2"></i>Create Room</a>
             <a href="{% url 'edit_building' building.uuid %}" class="btn btn-light"><i
                     class="bi bi-pencil me-2"></i>Edit</a>
             <form action="{% url 'delete_building' building.uuid %}" method="POST"
-                data-confirm="Are you sure you want to delete {{building.name}}? This cannot be undone.">
+                data-confirm="Are you sure you want to delete {{building}}? This cannot be undone.">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-light text-danger"><i class="bi bi-trash me-2"></i>Delete</button>
             </form>
@@ -43,7 +43,7 @@
                         class="bi bi-columns-gap {% if not room.available %} text-danger {% elif not building.available %} text-warning {% else %} text-success {% endif %} me-2"></i>
                     <a href="{{room.get_absolute_url}}" class="text-reset">{{room}}</a>
                 </div>
-                <div class="col-6 d-flex justify-content-end align-items-center">
+                <div class="col col-6 d-flex justify-content-end align-items-center">
                     {% if room.available %}
                     <div class="badge {% if not building.available %} bg-warning {% else %} bg-success {% endif %}">Available</div>
                     {% else %}

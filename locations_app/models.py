@@ -3,11 +3,9 @@
 from uuid import uuid4
 
 from django.db.models import Model
-from django.db.models.constraints import CheckConstraint
 from django.db.models.deletion import SET_NULL
 from django.db.models.fields import BooleanField, CharField, UUIDField
 from django.db.models.fields.related import ForeignKey
-from django.db.models.query_utils import Q
 from django.urls import reverse
 
 
@@ -17,8 +15,11 @@ class Building(Model):  # noqa: D101
     name = CharField(max_length=255, unique=True)
     available = BooleanField(default=True)
 
+    class Meta:  # noqa: D106
+        ordering = ("name",)
+
     def __str__(self) -> str:
-        return self.identifier
+        return f"{self.name} ({self.identifier})"
 
     def get_absolute_url(self) -> str:  # noqa: D102
         return reverse("view_building", kwargs={"uuid": self.uuid})
@@ -31,10 +32,15 @@ class Room(Model):  # noqa: D101
     code = CharField(max_length=10, null=True)
     available = BooleanField(default=True)
 
+    class Meta:  # noqa: D106
+        ordering = ("building", "code", "name")
+
     def __str__(self) -> str:
-        s = f"{self.building} {self.code}".strip()
+        s = ""
+        if self.code and self.building:
+            s = f"{self.building.identifier} {self.code}".strip()
         if self.name:
-            return f"{self.name} ({s})"
+            s = f"{s} ({self.name})" if s else self.name
         return s
 
     def get_absolute_url(self) -> str:  # noqa: D102
