@@ -75,8 +75,12 @@ def delete_building(request: HttpRequest, uuid: str) -> HttpResponse:
 @require_GET
 def list_rooms(request: HttpRequest) -> HttpResponse:
     rooms = Room.objects.all()
+    availability = request.GET.get("availability", "all") == "available"
+    if availability:
+        rooms = rooms.filter(available=True, building__available=True)
     return render(request, f"locations_app/{list_rooms.__name__}.html", {
         "rooms": rooms,
+        "availability": availability,
     })
 
 
