@@ -77,6 +77,9 @@ def list_rooms(request: HttpRequest) -> HttpResponse:
     rooms = Room.objects.all()
     group_by_building = request.GET.get("group_by", "building") == "building"
     availability = request.GET.get("availability", "all") == "available"
+    sort_by = request.GET.get("sort_by", "identifier")
+    if sort_by in {"default_capacity", "maximum_capacity"}:
+        rooms = rooms.order_by(sort_by).reverse()
     if availability:
         rooms = rooms.filter(available=True, building__available=True)
     groups = {}
@@ -87,6 +90,7 @@ def list_rooms(request: HttpRequest) -> HttpResponse:
         "groups": groups,
         "group_by_building": group_by_building,
         "availability": availability,
+        "sort_by": sort_by,
     })
 
 

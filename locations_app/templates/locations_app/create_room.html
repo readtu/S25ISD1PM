@@ -28,6 +28,16 @@
             </div>
             <div class="form-text">Only numbers, uppercase letters, and hyphens allowed.</div>
         </div>
+        <div class="row row-cols-2 mb-3">
+            <div class="col">
+                <label for="name" class="form-label">Capacity</label>
+                <input type="number" class="form-control" id="default_capacity" name="default_capacity" placeholder="Capacity…" min="1" value="{{room.default_capacity}}">
+            </div>
+            <div class="col">
+                <label for="name" class="form-label">Maximum Capacity</label>
+                <input type="number" class="form-control" id="maximum_capacity" name="maximum_capacity" placeholder="Maximum Capacity…" min="1" value="{{room.maximum_capacity}}">
+            </div>
+        </div>
         <div class="mt-4">
             {% csrf_token %}
             <input type="submit" value="Create" class="btn btn-primary">

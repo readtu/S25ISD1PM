@@ -32,6 +32,24 @@
                 <label class="form-check-label" for="available">Available rooms</label>
             </div>
         </fieldset>
+        <fieldset>
+            <legend class="h6">Sort by</legend>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="sort_by" id="sort_by__identifier" value="identifier" data-refresh
+                    {% if sort_by == 'identifier' %} checked {% endif %}>
+                <label class="form-check-label" for="sort_by__identifier">Identifier</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="sort_by" id="sort_by__default_capacity" value="default_capacity" data-refresh
+                    {% if sort_by == 'default_capacity' %} checked {% endif %}>
+                <label class="form-check-label" for="sort_by__default_capacity">Capacity</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="sort_by" id="sort_by__maximum_capacity" value="maximum_capacity" data-refresh
+                    {% if sort_by == 'maximum_capacity' %} checked {% endif %}>
+                <label class="form-check-label" for="sort_by__maximum_capacity">Capacity (Maximum)</label>
+            </div>
+        </fieldset>
     </form>
 </section>
 <section class="container py-5">
@@ -46,12 +64,17 @@
                     {% for room in rooms %}
                     <div class="list-group-item py-3">
                         <div class="row g-0">
-                            <div class="col col-6 d-flex justify-content-start align-items-center">
+                            <div class="col col-4 d-flex justify-content-start align-items-center">
                                 <i
                                     class="bi bi-columns-gap {% if not room.available %} text-danger {% elif not room.building.available %} text-warning {% else %} text-success {% endif %} me-2"></i>
                                 <a href="{{room.get_absolute_url}}" class="text-reset">{{room}}</a>
                             </div>
-                            <div class="col col-6 d-flex justify-content-end align-items-center">
+                            <div class="col col-4">
+                                {{room.default_capacity}}
+                                <span class="text-muted"> seats (up to </span>
+                                {{room.maximum_capacity}}<span class="text-muted">)</span>
+                            </div>
+                            <div class="col col-4 d-flex justify-content-end align-items-center">
                                 {% if room.available %}
                                 <div
                                     class="badge {% if not room.building.available %} bg-warning {% else %} bg-success {% endif %}">
@@ -77,18 +100,23 @@
         {% for room in rooms %}
         <div class="list-group-item py-3">
             <div class="row g-0">
-                <div class="col col-4 d-flex justify-content-start align-items-center">
+                <div class="col col-3 d-flex justify-content-start align-items-center">
                     <i
                         class="bi bi-columns-gap {% if not room.available %} text-danger {% elif not room.building.available %} text-warning {% else %} text-success {% endif %} me-2"></i>
                     <a href="{{room.get_absolute_url}}" class="text-reset">{{room}}</a>
                 </div>
-                <div class="col col-4 d-flex justify-content-start align-items-center">
+                <div class="col col-3 d-flex justify-content-start align-items-center">
                     <span>
                         Inside the <a href="{{room.building.get_absolute_url}}"
                             class="text-muted">{{room.building.name}}</a>
                     </span>
                 </div>
-                <div class="col col-4 d-flex justify-content-end align-items-center">
+                <div class="col col-3">
+                    {{room.default_capacity}}
+                    <span class="text-muted"> seats (up to </span>
+                    {{room.maximum_capacity}}<span class="text-muted">)</span>
+                </div>
+                <div class="col col-3 d-flex justify-content-end align-items-center">
                     {% if room.available %}
                     <div
                         class="badge {% if not room.building.available %} bg-warning {% else %} bg-success {% endif %}">
