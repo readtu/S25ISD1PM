@@ -85,13 +85,17 @@ def list_rooms(request: HttpRequest) -> HttpResponse:
     groups = {}
     for room in rooms:
         groups.setdefault(room.building, []).append(room)
-    return render(request, f"locations_app/{list_rooms.__name__}.html", {
-        "rooms": rooms,
-        "groups": groups,
-        "group_by_building": group_by_building,
-        "availability": availability,
-        "sort_by": sort_by,
-    })
+    return render(
+        request,
+        f"locations_app/{list_rooms.__name__}.html",
+        {
+            "rooms": rooms,
+            "groups": groups,
+            "group_by_building": group_by_building,
+            "availability": availability,
+            "sort_by": sort_by,
+        },
+    )
 
 
 @require_http_methods(["GET", "POST"])
@@ -102,6 +106,8 @@ def create_room(request: HttpRequest, building_uuid: str) -> HttpResponse:
             building=building,
             name=request.POST.get("name", "") or None,
             code=request.POST.get("code", "") or None,
+            default_capacity=int(request.POST["default_capacity"]),
+            maximum_capacity=int(request.POST["maximum_capacity"]),
         )
         success(request, f"Created {room}.")
         return redirect(room)
@@ -133,6 +139,8 @@ def edit_room(request: HttpRequest, uuid: str) -> HttpResponse:
         room.name = request.POST.get("name", "") or None
         room.code = request.POST.get("code", "") or None
         room.available = request.POST.get("available", "off") == "on"
+        room.default_capacity = int(request.POST["default_capacity"])
+        room.maximum_capacity = int(request.POST["maximum_capacity"])
         room.save()
         success(request, f"Saved changes to {room}.")
         return redirect(room)
