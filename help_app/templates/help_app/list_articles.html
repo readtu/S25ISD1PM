@@ -1,0 +1,24 @@
+{% extends 'chairs_app/base.html' %}
+{% block title %}Articles{% endblock %}
+{% block body %}
+<section class="container pt-5 pb-0">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mb-0">Help</h1>
+        <a href="{% url 'create_article' %}" class="btn btn-light"><i class="bi bi-plus me-2"></i>Create</a>
+    </div>
+</section>
+<section class="container py-5">
+    {% if articles %}
+    <div class="list-group">
+        {% for article in articles %}
+        <div class="list-group-item py-3">
+            <div><a href="{{article.get_absolute_url}}"><strong>{{article}}</strong></a></div>
+            <div class="text-muted">{{article.description}}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">No articles are available.</div>
+    {% endif %}
+</section>
+{% endblock %}

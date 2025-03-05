@@ -1,0 +1,30 @@
+{% extends 'chairs_app/base.html' %}
+{% load markdown %}
+{% block title %}{{article}}{% endblock %}
+{% block body %}
+<section class="container pt-5 pb-0">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'list_articles' %}">Articles</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{article}}</li>
+        </ol>
+    </nav>
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+        <h1 class="mb-0">{{article}}</h1>
+        <div class="d-flex gap-2">
+            <a href="{% url 'edit_article' article.slug %}" class="btn btn-light"><i
+                    class="bi bi-pencil me-2"></i>Edit</a>
+            <form action="{% url 'delete_article' article.slug %}" method="POST"
+                data-confirm="Are you sure you want to delete {{article}}? This cannot be undone.">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-light text-danger"><i class="bi bi-trash me-2"></i>Delete</button>
+            </form>
+        </div>
+    </div>
+</section>
+<section class="container py-5">
+    <div class="card">
+        <div class="card-body">{{article.text|markdown|safe}}</div>
+    </div>
+</section>
+{% endblock %}

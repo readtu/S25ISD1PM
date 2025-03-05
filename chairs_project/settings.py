@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "changes_app",
     "locations_app",
     "semesters_app",
+    "help_app",
 ]
 
 MIDDLEWARE = [

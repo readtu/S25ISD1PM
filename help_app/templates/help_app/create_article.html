@@ -1,0 +1,37 @@
+{% extends 'chairs_app/base.html' %}
+{% block title %}Create Article{% endblock %}
+{% block body %}
+<section class="container pt-5 pb-0">
+    <h1 class="mb-0">Create Article</h1>
+</section>
+<section class="container py-5">
+    <form method="POST">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" class="form-control" id="title" name="title" placeholder="Title…" maxlength="255"
+                required>
+        </div>
+        <div class="mb-3">
+            <label for="slug" class="form-label">Slug</label>
+            <input type="text" class="form-control" id="slug" name="slug" placeholder="Slug…" maxlength="255" required
+                pattern="[a-zA-Z_\-]+">
+            <div class="form-text">Only letters, hyphens, and underscores are supported.</div>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea type="text" class="form-control" id="description" name="description" placeholder="Description…"
+                maxlength="500" rows="3"></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="text" class="form-label">Text</label>
+            <textarea type="text" class="form-control" id="text" name="text" placeholder="Text…" maxlength="3000"
+                required rows="20"></textarea>
+                <div class="form-text">Markdown formatting is supported.</div>
+        </div>
+        <div class="mt-4">
+            {% csrf_token %}
+            <input type="submit" value="Create" class="btn btn-primary">
+        </div>
+    </form>
+</section>
+{% endblock %}

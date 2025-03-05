@@ -8,5 +8,6 @@ urlpatterns = [
     path("", include("locations_app.urls")),
     path("", include("changes_app.urls")),
     path("", include("semesters_app.urls")),
+    path("", include("help_app.urls")),
     *urlpatterns,
 ]
