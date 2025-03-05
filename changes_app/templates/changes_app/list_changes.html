@@ -23,7 +23,7 @@
             <legend class="h6">Filter by status</legend>
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="status" id="status__any" value="any"
-                    data-refresh {%if not status %} checked {%endif%}>
+                    data-refresh {%if status == "any"%} checked {%endif%}>
                 <label class="form-check-label" for="status__any">Any</label>
             </div>
             <div class="form-check">
@@ -32,14 +32,14 @@
                 <label class="form-check-label" for="status__pending">Pending</label>
             </div>
             <div class="form-check">
-                <input class="form-check-input" type="radio" name="status" id="status__pending" value="rejected"
+                <input class="form-check-input" type="radio" name="status" id="status__rejected" value="rejected"
                     data-refresh {%if status == "rejected"%} checked {%endif%}>
-                <label class="form-check-label" for="status__pending">Rejected</label>
+                <label class="form-check-label" for="status__rejected">Rejected</label>
             </div>
             <div class="form-check">
-                <input class="form-check-input" type="radio" name="status" id="status__pending" value="accepted"
+                <input class="form-check-input" type="radio" name="status" id="status__accepted" value="accepted"
                     data-refresh {%if status == "accepted"%} checked {%endif%}>
-                <label class="form-check-label" for="status__pending">Accepted</label>
+                <label class="form-check-label" for="status__accepted">Accepted</label>
             </div>
         </fieldset>
     </form>
