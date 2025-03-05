@@ -2,3 +2,5 @@
 db.sqlite3
 custom.css
 custom.css.map
+static/
+media/
