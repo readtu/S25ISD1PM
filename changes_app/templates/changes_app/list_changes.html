@@ -2,7 +2,47 @@
 {% block title %}Changes{% endblock %}
 {% block body %}
 <section class="container pt-5 pb-0">
-    <h1 class="mb-0">Changes</h1>
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+        <h1 class="mb-0">Changes</h1>
+    </div>
+    <form class="d-flex gap-5">
+        <fieldset>
+            <legend class="h6">Group by</legend>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="group_by" id="group_by__none" value="none"
+                    data-refresh {%if not group_by_semester%} checked {%endif%}>
+                <label class="form-check-label" for="group_by__none">None</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="group_by" id="group_by__semester" value="semester"
+                    data-refresh {%if group_by_semester%} checked {%endif%}>
+                <label class="form-check-label" for="group_by__semester">Semester</label>
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend class="h6">Filter by status</legend>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="status" id="status__any" value="any"
+                    data-refresh {%if not status %} checked {%endif%}>
+                <label class="form-check-label" for="status__any">Any</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="status" id="status__pending" value="pending"
+                    data-refresh {%if status == "pending"%} checked {%endif%}>
+                <label class="form-check-label" for="status__pending">Pending</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="status" id="status__pending" value="rejected"
+                    data-refresh {%if status == "rejected"%} checked {%endif%}>
+                <label class="form-check-label" for="status__pending">Rejected</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="status" id="status__pending" value="accepted"
+                    data-refresh {%if status == "accepted"%} checked {%endif%}>
+                <label class="form-check-label" for="status__pending">Accepted</label>
+            </div>
+        </fieldset>
+    </form>
 </section>
 <section class="container py-5">
     {% if changes %}
