@@ -25,6 +25,17 @@ SECRET_KEY = "django-insecure-!t7rnga3xb3-4$xz7r=mcxud4&l2!&0nbvcp!p+txeiey1^c7%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+ALLOWED_HOSTS = [
+    "chairs.cse.taylor.edu",
+]
+
+if DEBUG:
+    ALLOWED_HOSTS += [
+        "127.0.0.1",
+        "[::1]",
+        "localhost",
+    ]
+
 INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
