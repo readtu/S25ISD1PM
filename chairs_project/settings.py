@@ -9,6 +9,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+from os import environ
 from pathlib import Path
 
 from django.contrib import messages
@@ -19,11 +20,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-!t7rnga3xb3-4$xz7r=mcxud4&l2!&0nbvcp!p+txeiey1^c7%"
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+if DEBUG:
+    SECRET_KEY = "django-insecure-!t7rnga3xb3-4$xz7r=mcxud4&l2!&0nbvcp!p+txeiey1^c7%"
+else:
+    SECRET_KEY = environ["CHAIRS_SECRET_KEY"]
 
 ALLOWED_HOSTS = [
     "chairs.cse.taylor.edu",
@@ -88,6 +91,11 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
+    } if DEBUG else {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "chairs_db",
+        "USER": "chairs_user",
+        "PASSWORD": environ["CHAIRS_DB_PASSWORD"],
     },
 }
 
