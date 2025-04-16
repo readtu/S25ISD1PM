@@ -17,7 +17,7 @@ def list_changes(request: HttpRequest) -> HttpResponse:
         changes = changes.filter(status=status)
     return render(
         request,
-        f"changes_app/{list_changes.__name__}.html",
+        f"{__package__}/{list_changes.__name__}.html",
         {
             "group_by_semester": group_by_semester,
             "status": status,

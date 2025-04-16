@@ -29,7 +29,7 @@ def list_semesters(request: HttpRequest) -> HttpResponse:
     years.setdefault(now_academic_year, [])
     return render(
         request,
-        f"semesters_app/{list_semesters.__name__}.html",
+        f"{__package__}/{list_semesters.__name__}.html",
         {
             "semesters": semesters,
             "years": years.items(),
@@ -49,7 +49,7 @@ def create_semester(request: HttpRequest) -> HttpResponse:
         success(request, f"Created {semester}.")
         return redirect(semester)
     now_ = now().year
-    return render(request, f"semesters_app/{create_semester.__name__}.html", {
+    return render(request, f"{__package__}/{create_semester.__name__}.html", {
         "now": now_,
     })
 
@@ -57,7 +57,7 @@ def create_semester(request: HttpRequest) -> HttpResponse:
 @require_http_methods(["GET", "POST"])
 def view_semester(request: HttpRequest, uuid: str) -> HttpResponse:
     semester = get_object_or_404(Semester, uuid=uuid)
-    return render(request, f"semesters_app/{view_semester.__name__}.html", {
+    return render(request, f"{__package__}/{view_semester.__name__}.html", {
         "semester": semester,
     })
 
@@ -71,7 +71,7 @@ def copy_to_semester(request: HttpRequest, uuid: str) -> HttpResponse:
         # TODO: copy the information from one semester to the other
         success(request, f"Copied from {from_} to {semester}.")
         return redirect(semester)
-    return render(request, f"semesters_app/{copy_to_semester.__name__}.html", {
+    return render(request, f"{__package__}/{copy_to_semester.__name__}.html", {
         "semester": semester,
         "years": years,
     })

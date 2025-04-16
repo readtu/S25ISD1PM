@@ -1,0 +1,95 @@
+{% extends 'chairs_app/base.html' %}
+{% spaceless %}
+{% block title %}Departments{% endblock %}
+{% block body %}
+<section class="container pt-5 pb-0">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mb-0">Departments</h1>
+        <div class="d-flex gap-2">
+            <a href="{% url 'create_school' %}" class="btn btn-light"><i class="bi bi-plus me-2"></i>School</a>
+            <a href="{% url 'create_department' %}" class="btn btn-light"><i class="bi bi-plus me-2"></i>Department</a>
+            <a href="{% url 'create_subject' %}" class="btn btn-light"><i class="bi bi-plus me-2"></i>Subject</a>
+        </div>
+    </div>
+</section>
+<section class="container py-5">
+    <div class="d-flex flex-column gap-4">
+        {% if schools.count %}
+        {% for school in schools %}
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <strong>{{school}}</strong>
+                    <div class="d-flex gap-2">
+                        <a class="btn p-0 btn-text color-primary" href="{% url 'edit_school' school.uuid %}"><i
+                                class="bi bi-pencil"></i></a>
+                        <form action="{% url 'delete_school' school.uuid %}" method="POST"
+                            data-confirm="Are you sure you want to delete {{school}}?">
+                            {% csrf_token %}
+                            <button class="btn p-0 btn-text color-primary" type="submit"><i
+                                    class="bi bi-x-lg"></i></button>
+                        </form>
+                        <a class="btn p-0 btn-text color-primary"
+                            href="{% url 'create_department' %}?school={{school.uuid}}"><i
+                                class="bi bi-plus-lg"></i></a>
+                    </div>
+                </div>
+                {% if school.departments.all %}
+                <div class="list-group">
+                    {% for department in school.departments.all %}
+                    <div class="list-group-item p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>{{department}}</div>
+                            <div class="d-flex gap-2">
+                                <a class="btn p-0 btn-text color-primary"
+                                    href="{% url 'edit_department' department.uuid %}"><i class="bi bi-pencil"></i></a>
+                                <form action="{% url 'delete_department' department.uuid %}" method="POST"
+                                    data-confirm="Are you sure you want to delete {{department}}?">
+                                    {% csrf_token %}
+                                    <button class="btn p-0 btn-text color-primary" type="submit"><i
+                                            class="bi bi-x-lg"></i></button>
+                                </form>
+                                <a class="btn p-0 btn-text color-primary"
+                                    href="{% url 'create_subject' %}?department={{department.uuid}}"><i
+                                        class="bi bi-plus-lg"></i></a>
+                            </div>
+                        </div>
+                        {% if department.subjects.all %}
+                        <div class="d-flex flex-wrap gap-2 hide-empty">
+                            {% for subject in department.subjects.all %}
+                            <div class="rounded bg-light py-1 px-2 d-flex gap-2 align-items-center">
+                                <strong>{{subject.code}}</strong>{{subject.name}}
+                                <form action="{% url 'delete_subject' subject.uuid %}" method="POST"
+                                    data-confirm="Are you sure you want to delete {{subject}}?"
+                                    class="d-flex gap-2 ms-2">
+                                    <a href="{% url 'edit_subject' subject.uuid %}"
+                                        class="btn btn-text p-0 color-primary"><i
+                                            class="bi bi-pencil color-primary"></i></a>
+                                    {% csrf_token %}
+                                    <button class="btn btn-text p-0 color-primary" type="submit"><i
+                                            class="bi bi-x-lg"></i></button>
+                                </form>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info mb-0">This department has no subjects.</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info mb-0">
+                    This school has no departments.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="alert alert-info">No schools are available.</div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+{% endspaceless %}

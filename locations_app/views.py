@@ -13,7 +13,7 @@ def list_buildings(request: HttpRequest) -> HttpResponse:
     buildings = Building.objects.all()
     return render(
         request,
-        f"locations_app/{list_buildings.__name__}.html",
+        f"{__package__}/{list_buildings.__name__}.html",
         {
             "buildings": buildings,
         },
@@ -29,7 +29,7 @@ def create_building(request: HttpRequest) -> HttpResponse:
         )
         success(request, f"Created {building}.")
         return redirect(building)
-    return render(request, f"locations_app/{create_building.__name__}.html", {})
+    return render(request, f"{__package__}/{create_building.__name__}.html", {})
 
 
 @require_GET
@@ -37,7 +37,7 @@ def view_building(request: HttpRequest, uuid: str) -> HttpResponse:
     building = get_object_or_404(Building, uuid=uuid)
     return render(
         request,
-        f"locations_app/{view_building.__name__}.html",
+        f"{__package__}/{view_building.__name__}.html",
         {
             "building": building,
         },
@@ -56,7 +56,7 @@ def edit_building(request: HttpRequest, uuid: str) -> HttpResponse:
         return redirect(building)
     return render(
         request,
-        f"locations_app/{edit_building.__name__}.html",
+        f"{__package__}/{edit_building.__name__}.html",
         {
             "building": building,
         },
@@ -87,7 +87,7 @@ def list_rooms(request: HttpRequest) -> HttpResponse:
         groups.setdefault(room.building, []).append(room)
     return render(
         request,
-        f"locations_app/{list_rooms.__name__}.html",
+        f"{__package__}/{list_rooms.__name__}.html",
         {
             "rooms": rooms,
             "groups": groups,
@@ -113,7 +113,7 @@ def create_room(request: HttpRequest, building_uuid: str) -> HttpResponse:
         return redirect(room)
     return render(
         request,
-        f"locations_app/{create_room.__name__}.html",
+        f"{__package__}/{create_room.__name__}.html",
         {
             "building": building,
         },
@@ -125,7 +125,7 @@ def view_room(request: HttpRequest, uuid: str) -> HttpResponse:
     room = get_object_or_404(Room, uuid=uuid)
     return render(
         request,
-        f"locations_app/{view_room.__name__}.html",
+        f"{__package__}/{view_room.__name__}.html",
         {
             "room": room,
         },
@@ -146,7 +146,7 @@ def edit_room(request: HttpRequest, uuid: str) -> HttpResponse:
         return redirect(room)
     return render(
         request,
-        f"locations_app/{edit_room.__name__}.html",
+        f"{__package__}/{edit_room.__name__}.html",
         {
             "room": room,
         },

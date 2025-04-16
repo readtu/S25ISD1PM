@@ -1,0 +1,28 @@
+{% extends 'chairs_app/base.html' %}
+{% block title %}Create Department{% endblock %}
+{% block body %}
+<section class="container pt-5 pb-0">
+    <h1 class="mb-0">Create Department</h1>
+</section>
+<section class="container py-5">
+    <form method="POST">
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="Name…" maxlength="255"
+                required>
+        </div>
+        <div class="mb-3">
+            <label for="School" class="form-label">School</label>
+            <select name="school" id="school" name="school" class="form-select" required>
+                {% for school_ in schools %}
+                <option value="{{school_.uuid}}" {% if school and school == school_ %} selected {% endif %}>{{school_}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mt-4">
+            {% csrf_token %}
+            <input type="submit" value="Create" class="btn btn-primary">
+        </div>
+    </form>
+</section>
+{% endblock %}
