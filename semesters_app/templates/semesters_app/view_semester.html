@@ -25,6 +25,51 @@
         </div>
     </div>
     <div id='calendar'></div>
+    <table class="tftable">
+      <tr>
+          <th>Course ID</th>
+          <th>Course Identifier Display</th>
+          <th>Course Number</th>
+          <th>Course Type Titles</th>
+          <th>Instructional Events</th>
+          <th>Section Code</th>
+          <th>Section End On</th>
+          <th>Section Number</th>
+          <th>Section Reporting Academic Period ID</th>
+          <th>Section Start On</th>
+          <th>Sections ID</th>
+          <th>Subject Abbreviation</th>
+          <th>Subject ID</th>
+          <th>Subject Title</th>
+      </tr>
+      
+      {% for item in response %}
+          <tr>
+              <td>{{ item.courseId }}</td>
+              <td>{{ item.courseIdentifierDisplay }}</td>
+              <td>{{ item.courseNumber }}</td>
+              <td>
+                  {% for typeTitle in item.courseTypeTitles %}
+                      {{ typeTitle }}
+                  {% endfor %}
+              </td>
+              <td>
+                  {% for event in item.instructionalEvents %}
+                      {{ event.instructionalEventId }}
+                  {% endfor %}
+              </td>
+              <td>{{ item.sectionCode }}</td>
+              <td>{{ item.sectionEndOn }}</td>
+              <td>{{ item.sectionNumber }}</td>
+              <td>{{ item.sectionReportingAcademicPeriodId }}</td>
+              <td>{{ item.sectionStartOn }}</td>
+              <td>{{ item.sectionsId }}</td>
+              <td>{{ item.subjectAbbreviation }}</td>
+              <td>{{ item.subjectId }}</td>
+              <td>{{ item.subjectTitle }}</td>
+          </tr>
+      {% endfor %}
+  </table>
         <script>
           document.addEventListener('DOMContentLoaded', function () {
             var calendarEl = document.getElementById('calendar');

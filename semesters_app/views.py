@@ -1,5 +1,8 @@
 # ruff: noqa: D103
 
+import requests
+from django.http import JsonResponse
+
 from django.contrib.messages import success
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -56,10 +59,43 @@ def create_semester(request: HttpRequest) -> HttpResponse:
 
 @require_http_methods(["GET", "POST"])
 def view_semester(request: HttpRequest, uuid: str) -> HttpResponse:
+    # Retrieve the Semester object using uuid
     semester = get_object_or_404(Semester, uuid=uuid)
-    return render(request, f"{__package__}/{view_semester.__name__}.html", {
+
+    # Prepare the API request
+    url = "https://integrate.elluciancloud.com/api/section-schedule-information?offset=94000&limit=10"
+    headers = {
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDlhNDc2Yy03ZTRlLTQyZTUtOWQ0ZC05NjJmMTFlMjkzMTUiLCJ0b2ciOltdLCJ0ZW5hbnQiOnsiaWQiOiI3MGUwZmYxZS1jYzkxLTRlOGEtOThjMC02NTdmNzhkMWM1MTAiLCJhY2NvdW50SWQiOiIwMDFHMDAwMDAwaUhuMHNJQUMiLCJhbGlhcyI6InR1dWl0ZXN0IiwibmFtZSI6IlRheWxvciBVbml2ZXJzaXR5LVVwbGFuZCBJTiIsImxhYmVsIjoiVGVzdCJ9LCJhcGlLZXlQcmVmaXgiOiI1ZWZjYSoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioiLCJpYXQiOjE3NDUzMzc3MzQsImV4cCI6MTc0NTMzODAzNH0.BjlbllTmv5_MNoHhqhvy2b1XdE7U1i3Wes6MOr8ZejU',  # Replace with your actual token
+    }
+
+    # Debugging statement to confirm if the API call is happening
+    print("Making API request...")
+
+    try:
+        # Make the GET request to the API
+        response = requests.get(url, headers=headers)
+        # Debugging: Print raw API response to see if the call is successful
+        print("API Response Status Code:", response.status_code)
+        print("API Response Text:", response.text)  # Print raw response content
+        
+        # Check if the request was successful
+        if response.status_code == 200:
+            data = response.json()  # Parse the JSON response from the API
+            print("API Data:", data)  # Check what data is returned
+        else:
+            data = []  # Empty list if API call failed
+            print(f"API call failed with status: {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        # In case of a connection error or timeout
+        print(f"Error during API call: {e}")
+        data = []  # Empty list in case of error
+
+    # Render the template with both the Semester and API response
+    return render(request, f"semesters_app/view_semester.html", {
         "semester": semester,
+        "response": data
     })
+
 
 
 @require_http_methods(["GET", "POST"])
