@@ -1,16 +1,20 @@
 [tool.ruff]
 line-length = 100
-select = ["ALL"]
-ignore = [
-    "D100",
-    "D209",
-    "DJ001",
-    "EM101",
-    "TD002",
-    "TD003",
-]
 extend-exclude = [
     "**/migrations/**.py",
     "*_app/__init__.py",
     "*_project/__init__.py",
+]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "D100",
+    "D203",
+    "D209",
+    "D212",
+    "DJ001",
+    "EM101",
+    "TD002",
+    "TD003",
 ]
