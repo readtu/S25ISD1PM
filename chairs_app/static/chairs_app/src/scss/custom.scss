@@ -69,3 +69,7 @@ $theme-colors-border-subtle: map-merge($theme-colors-border-subtle,
 .hide-empty:empty {
     display: none;
 }
+
+.filter-card {
+    height: 150px;
+}
