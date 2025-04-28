@@ -4,3 +4,4 @@ custom.css
 custom.css.map
 /static/
 /media/
+/.env
