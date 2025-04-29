@@ -67,7 +67,76 @@ document.querySelectorAll("[data-resets]").forEach(function (resetsElement) {
             resetElement.checked = false;
         });
         setResetsClass(resetElements, resetsElement);
+        setQueries();
+        query();
     });
+});
+
+const delimiter = "+";
+
+document.querySelectorAll("[data-query]").forEach(function (queryElement) {
+    queryElement.addEventListener("change", function (event) {
+        const url = new URL(window.location.toString());
+        const params = new URLSearchParams(url.search);
+        const tokens = new Set(
+            (params.get(queryElement.name) || "").split(delimiter)
+        );
+        if (queryElement.checked) {
+            tokens.add(queryElement.value);
+        } else {
+            tokens.delete(queryElement.value);
+        }
+        if (tokens.size) {
+            params.set(queryElement.name, Array.from(tokens).join(delimiter));
+        } else {
+            params.delete(queryElement.name);
+        }
+        url.search = params.toString();
+        window.history.pushState({ path: url.toString() }, "", url.toString());
+        query();
+    });
+});
+
+function setQueries() {
+    const url = new URL(window.location.toString());
+    const params = new URLSearchParams(url.search);
+    document.querySelectorAll("[data-query]").forEach(function (queryElement) {
+        queryElement.checked = (params.get(queryElement.name) || "")
+            .split(delimiter)
+            .includes(queryElement.value);
+    });
+}
+
+function query() {
+    const url = new URL(window.location.toString());
+    const params = new URLSearchParams(url.search);
+    document
+        .querySelectorAll(`[data-queried]`)
+        .forEach(function (queriedElement) {
+            for (const [name, value] of params.entries()) {
+                const valueTokens = value
+                    .split(delimiter)
+                    .filter((token) => token.length);
+                const _value = queriedElement.dataset[`attribute-${name}`];
+                if (
+                    valueTokens.length &&
+                    valueTokens.every((token) => !_value.includes(token))
+                ) {
+                    queriedElement.style.display = "none";
+                } else {
+                    queriedElement.style.display = "";
+                }
+            }
+        });
+}
+
+window.addEventListener("load", () => {
+    setQueries();
+    query();
+});
+window.addEventListener("popstate", () => {
+    setQueries();
+    query();
 });
 
 document

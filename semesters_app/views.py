@@ -1,14 +1,13 @@
 # ruff: noqa: D103
 
-import requests
-from django.http import JsonResponse
-
 from django.contrib.messages import success
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.timezone import now
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
+from departments_app.models import Subject
+from locations_app.models import Building
 from semesters_app.models import (
     AcademicYear,
     Semester,
@@ -16,13 +15,12 @@ from semesters_app.models import (
     group_semesters_by_academic_year,
     group_semesters_by_year,
 )
+from users_app.models import User, UserRole
 
 
 @require_GET
 def list_semesters(request: HttpRequest) -> HttpResponse:
-    group_by_academic_year: bool = (
-        request.GET.get("group_by", "academic_year") == "academic_year"
-    )
+    group_by_academic_year: bool = request.GET.get("group_by", "academic_year") == "academic_year"
     semesters = Semester.objects.all()
     if group_by_academic_year:
         years = group_semesters_by_academic_year(semesters)
@@ -52,50 +50,34 @@ def create_semester(request: HttpRequest) -> HttpResponse:
         success(request, f"Created {semester}.")
         return redirect(semester)
     now_ = now().year
-    return render(request, f"{__package__}/{create_semester.__name__}.html", {
-        "now": now_,
-    })
+    return render(
+        request,
+        f"{__package__}/{create_semester.__name__}.html",
+        {
+            "now": now_,
+        },
+    )
 
 
 @require_http_methods(["GET", "POST"])
 def view_semester(request: HttpRequest, uuid: str) -> HttpResponse:
-    # Retrieve the Semester object using uuid
     semester = get_object_or_404(Semester, uuid=uuid)
-
-    # Prepare the API request
-    url = "https://integrate.elluciancloud.com/api/section-schedule-information?offset=94000&limit=10"
-    headers = {
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNDlhNDc2Yy03ZTRlLTQyZTUtOWQ0ZC05NjJmMTFlMjkzMTUiLCJ0b2ciOltdLCJ0ZW5hbnQiOnsiaWQiOiI3MGUwZmYxZS1jYzkxLTRlOGEtOThjMC02NTdmNzhkMWM1MTAiLCJhY2NvdW50SWQiOiIwMDFHMDAwMDAwaUhuMHNJQUMiLCJhbGlhcyI6InR1dWl0ZXN0IiwibmFtZSI6IlRheWxvciBVbml2ZXJzaXR5LVVwbGFuZCBJTiIsImxhYmVsIjoiVGVzdCJ9LCJhcGlLZXlQcmVmaXgiOiI1ZWZjYSoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioiLCJpYXQiOjE3NDUzMzc3MzQsImV4cCI6MTc0NTMzODAzNH0.BjlbllTmv5_MNoHhqhvy2b1XdE7U1i3Wes6MOr8ZejU',  # Replace with your actual token
-    }
-
-    # Debugging statement to confirm if the API call is happening
-    print("Making API request...")
-
-    try:
-        # Make the GET request to the API
-        response = requests.get(url, headers=headers)
-        # Debugging: Print raw API response to see if the call is successful
-        print("API Response Status Code:", response.status_code)
-        print("API Response Text:", response.text)  # Print raw response content
-        
-        # Check if the request was successful
-        if response.status_code == 200:
-            data = response.json()  # Parse the JSON response from the API
-            print("API Data:", data)  # Check what data is returned
-        else:
-            data = []  # Empty list if API call failed
-            print(f"API call failed with status: {response.status_code}")
-    except requests.exceptions.RequestException as e:
-        # In case of a connection error or timeout
-        print(f"Error during API call: {e}")
-        data = []  # Empty list in case of error
-
-    # Render the template with both the Semester and API response
-    return render(request, f"semesters_app/view_semester.html", {
-        "semester": semester,
-        "response": data
-    })
-
+    classes = semester.classes.all()
+    classes_codes = sorted(set(classes.values_list("code", flat=True)))
+    professors = User.objects.filter(role=UserRole.PROFESSOR).order_by("name")
+    buildings = Building.objects.all().prefetch_related("rooms")
+    return render(
+        request,
+        f"{__package__}/{view_semester.__name__}.html",
+        {
+            "semester": semester,
+            "classes": classes,
+            "course_codes": classes_codes,
+            "professors": professors,
+            "buildings": buildings,
+            "subjects": Subject.objects.order_by("name"),
+        },
+    )
 
 
 @require_http_methods(["GET", "POST"])
@@ -107,10 +89,14 @@ def copy_to_semester(request: HttpRequest, uuid: str) -> HttpResponse:
         # TODO: copy the information from one semester to the other
         success(request, f"Copied from {from_} to {semester}.")
         return redirect(semester)
-    return render(request, f"{__package__}/{copy_to_semester.__name__}.html", {
-        "semester": semester,
-        "years": years,
-    })
+    return render(
+        request,
+        f"{__package__}/{copy_to_semester.__name__}.html",
+        {
+            "semester": semester,
+            "years": years,
+        },
+    )
 
 
 @require_POST

@@ -1,10 +1,6 @@
 {% extends 'chairs_app/base.html' %}
 {% block title %}{{semester}}{% endblock %}
 {% block body %}
-<head>
-    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css' rel='stylesheet' />
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
-</head>
 <section class="container pt-5 pb-0">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -12,8 +8,11 @@
             <li class="breadcrumb-item active" aria-current="page">{{semester}}</li>
         </ol>
     </nav>
-    <div class="d-flex justify-content-between align-items-center">
-        <h1 class="mb-0">{{semester}}</h1>
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+        <div class="mb-2">
+            <h1 class="mb-2">{{semester}}</h1>
+            <div class="mb-2">{{semester.start|date:"F j"}} &ndash; {{semester.end|date:"F j"}}</div>
+        </div>
         <div class="d-flex gap-2">
             <a href="{% url 'copy_to_semester' semester.uuid %}" class="btn btn-light"><i
                     class="bi bi-upload me-2"></i>Copy to</a>
@@ -24,72 +23,155 @@
             </form>
         </div>
     </div>
-    <div id='calendar'></div>
-    <table class="tftable">
-      <tr>
-          <th>Course ID</th>
-          <th>Course Identifier Display</th>
-          <th>Course Number</th>
-          <th>Course Type Titles</th>
-          <th>Instructional Events</th>
-          <th>Section Code</th>
-          <th>Section End On</th>
-          <th>Section Number</th>
-          <th>Section Reporting Academic Period ID</th>
-          <th>Section Start On</th>
-          <th>Sections ID</th>
-          <th>Subject Abbreviation</th>
-          <th>Subject ID</th>
-          <th>Subject Title</th>
-      </tr>
-      
-      {% for item in response %}
-          <tr>
-              <td>{{ item.courseId }}</td>
-              <td>{{ item.courseIdentifierDisplay }}</td>
-              <td>{{ item.courseNumber }}</td>
-              <td>
-                  {% for typeTitle in item.courseTypeTitles %}
-                      {{ typeTitle }}
-                  {% endfor %}
-              </td>
-              <td>
-                  {% for event in item.instructionalEvents %}
-                      {{ event.instructionalEventId }}
-                  {% endfor %}
-              </td>
-              <td>{{ item.sectionCode }}</td>
-              <td>{{ item.sectionEndOn }}</td>
-              <td>{{ item.sectionNumber }}</td>
-              <td>{{ item.sectionReportingAcademicPeriodId }}</td>
-              <td>{{ item.sectionStartOn }}</td>
-              <td>{{ item.sectionsId }}</td>
-              <td>{{ item.subjectAbbreviation }}</td>
-              <td>{{ item.subjectId }}</td>
-              <td>{{ item.subjectTitle }}</td>
-          </tr>
-      {% endfor %}
-  </table>
-        <script>
-          document.addEventListener('DOMContentLoaded', function () {
+    <form class="d-flex gap-4 overflow-x-scroll">
+        <fieldset id="course_code" style="width: 8rem">
+            <legend class="h6">Code</legend>
+            <div class="d-flex mb-2 gap-2">
+                <input class="form-control" type="text" name="course_code_filter" id="course_code_filter"
+                    placeholder="Code…" data-filter-kind="course_code">
+                <button class="btn btn-light" type="button" data-resets="course_code">
+                    <div class="bi bi-arrow-counterclockwise"></div>
+                </button>
+            </div>
+            <div class="card p-2 filter-card overflow-y-scroll">
+                {% for course_code in course_codes %}
+                <div class="form-check" data-kind="course_code" data-value="{{course_code}}">
+                    <input class="form-check-input" type="checkbox" name="course_code" id="course_code_{{course_code}}"
+                        value="{{course_code}}" data-reset="course_code" data-query>
+                    <label class="form-check-label" for="course_code_{{course_code}}">{{course_code}}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </fieldset>
+        <fieldset id="subject" style="width: 15rem">
+            <legend class="h6">Subject</legend>
+            <div class="d-flex mb-2 gap-2">
+                <input class="form-control" type="text" name="subject_filter" id="subject_filter" placeholder="Subject…"
+                    data-filter-kind="subject">
+                <button class="btn btn-light" type="button" data-resets="subject">
+                    <div class="bi bi-arrow-counterclockwise"></div>
+                </button>
+            </div>
+            <div class="card p-2 filter-card overflow-y-scroll">
+                {% for subject in subjects %}
+                <div class="form-check" data-kind="subject" data-value="{{subject.name}}">
+                    <input class="form-check-input" type="checkbox" name="subject" id="subject_{{subject.pk}}"
+                        value="{{subject.pk}}" data-reset="subject" data-query>
+                    <label class="form-check-label" for="subject_{{subject.pk}}">{{subject.name}}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </fieldset>
+        <fieldset id="professor" style="width: 15rem">
+            <legend class="h6">Professor</legend>
+            <div class="d-flex mb-2 gap-2">
+                <input class="form-control" type="text" name="professor_filter" id="professor_filter"
+                    placeholder="Professor…" data-filter-kind="professor">
+                <button class="btn btn-light" type="button" data-resets="professor">
+                    <div class="bi bi-arrow-counterclockwise"></div>
+                </button>
+            </div>
+            <div class="card p-2 filter-card overflow-y-scroll">
+                {% for professor in professors %}
+                <div class="form-check" data-kind="professor" data-value="{{professor.name}}">
+                    <input class="form-check-input" type="checkbox" name="professor" id="professor_{{professor.pk}}"
+                        value="{{professor.pk}}" data-reset="professor" data-query>
+                    <label class="form-check-label" for="professor_{{professor.pk}}">{{professor.name}}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </fieldset>
+        <fieldset id="locations" style="width: 20rem">
+            <legend class="h6">Locations</legend>
+            <div class="d-flex mb-2 gap-2">
+                <input class="form-control" type="text" name="locations_filter" id="locations_filter"
+                    placeholder="Location…" data-filter-kind="location">
+                <button class="btn btn-light" type="button" data-resets="location">
+                    <div class="bi bi-arrow-counterclockwise"></div>
+                </button>
+            </div>
+            <div class="card p-2 filter-card overflow-y-scroll">
+                <div class="d-flex flex-column gap-3">
+                    {% for building in buildings %}
+                    <div data-group>
+                        <div class="form-check" data-kind="location" data-value="{{building.name}}">
+                            <input class="form-check-input" type="checkbox" name="location"
+                                id="location_{{building.pk}}" value="{{building.pk}}" data-all="{{building.pk}}"
+                                data-reset="location">
+                            <label class="form-check-label fw-bold"
+                                for="location_{{building.pk}}">{{building.name}}</label>
+                        </div>
+                        <div class="d-flex flex-column ps-3">
+                            {% for room in building.rooms.all %}
+                            <div class="form-check" data-kind="location" data-value="{{room}}">
+                                <input class="form-check-input" type="checkbox" name="location"
+                                    id="location_{{room.pk}}" value="{{room}}" data-one="{{building.pk}}"
+                                    data-reset="location" data-query>
+                                <label class="form-check-label" for="location_{{room.pk}}">{{room}}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</section>
+<section class="container pt-5">
+    <div class="row g-5">
+        <div class="col col-8">
+            <div class="h-100vh" id="calendar"></div>
+        </div>
+        <div class="col col-4">
+            <div class="card p-1 overflow-y-scroll h-100vh">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Room</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for class in classes %}
+                        <tr data-attribute-course_code="{{class.code}}" data-attribute-subject="{{class.subject.name}}"
+                            data-attribute-location="{{class.room}}" data-queried>
+                            <th scope="row">
+                                <div>
+                                    <div>{{class.subject.code}} {{class.code}}</div>
+                                    <small class="text-muted fw-normal">{{class.name}}</small>
+
+                                </div>
+                            </th>
+                            <td><a href="{{class.room.get_absolute_url}}">{{class.room.building.code}}
+                                    {{class.room.code}}</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
             var calendarEl = document.getElementById('calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
-              initialView: 'timeGridWeek',
-              headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'timeGridWeek,timeGridDay'
-              },
-              events: [
-                {
-                  title: 'Study Session',
-                  start: new Date().toISOString().split('T')[0] + 'T09:00:00',
-                  end: new Date().toISOString().split('T')[0] + 'T10:30:00',
+                initialView: 'timeGridWeek',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'timeGridWeek,timeGridDay'
                 },
-              ]
+                events: [
+                    {
+                        title: 'Study Session',
+                        start: new Date().toISOString().split('T')[0] + 'T09:00:00',
+                        end: new Date().toISOString().split('T')[0] + 'T10:30:00',
+                    },
+                ]
             });
             calendar.render();
-          });
-        </script>
+        });
+    </script>
 </section>
 {% endblock %}
