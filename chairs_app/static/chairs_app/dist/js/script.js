@@ -1,3 +1,22 @@
+const htmlElement = document.querySelector("html");
+if (htmlElement.getAttribute("data-bs-theme") === "auto") {
+    function updateTheme() {
+        document
+            .querySelector("html")
+            .setAttribute(
+                "data-bs-theme",
+                window.matchMedia("(prefers-color-scheme: dark)").matches
+                    ? "dark"
+                    : "light"
+            );
+    }
+
+    window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", updateTheme);
+    updateTheme();
+}
+
 document.querySelectorAll("input[data-refresh]").forEach(function (element) {
     element.addEventListener("change", function (event) {
         event.target.form.submit();
