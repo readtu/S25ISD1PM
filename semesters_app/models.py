@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from django.db.models import Model
 from django.db.models.enums import IntegerChoices
-from django.db.models.fields import IntegerField, UUIDField
+from django.db.models.fields import DateField, IntegerField, UUIDField
 from django.urls import reverse
 
 
@@ -45,11 +45,12 @@ class Semester(Model):  # noqa: D101
     uuid = UUIDField(primary_key=True, default=uuid4)
     year = IntegerField()
     term = IntegerField(choices=Term.choices)
+    start = DateField()
+    end = DateField()
 
     class Meta:  # noqa: D106
         ordering = ("-year", "-term")
         get_latest_by = ordering
-        unique_together = ("year", "term")
 
     def __str__(self) -> str:
         return self.name
