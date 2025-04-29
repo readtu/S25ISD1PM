@@ -49,7 +49,7 @@ def edit_building(request: HttpRequest, uuid: str) -> HttpResponse:
     building = get_object_or_404(Building, uuid=uuid)
     if request.method == "POST":
         building.name = request.POST["name"]
-        building.identifier = request.POST["identifier"]
+        building.code = request.POST["identifier"]
         building.available = request.POST.get("available", "off") == "on"
         building.save()
         success(request, f"Saved changes to {building.name}.")

@@ -12,15 +12,15 @@ from django.urls import reverse
 
 class Building(Model):
     uuid = UUIDField(primary_key=True, default=uuid4)
-    identifier = CharField(max_length=10, unique=True)
-    name = CharField(max_length=255, unique=True)
+    code = CharField(max_length=10)
+    name = CharField(max_length=255)
     available = BooleanField(default=True)
 
     class Meta:
         ordering = ("name",)
 
     def __str__(self) -> str:
-        return f"{self.name} ({self.identifier})"
+        return f"{self.name} ({self.code})"
 
     def get_absolute_url(self) -> str:  # noqa: D102
         return reverse("view_building", kwargs={"uuid": self.uuid})
@@ -29,7 +29,7 @@ class Building(Model):
 class Room(Model):
     uuid = UUIDField(primary_key=True, default=uuid4)
     building = ForeignKey(Building, on_delete=SET_NULL, related_name="rooms", null=True)
-    name = CharField(max_length=255, null=True, unique=True)
+    name = CharField(max_length=255, null=True)
     code = CharField(max_length=10, null=True)
     available = BooleanField(default=True)
     default_capacity = PositiveIntegerField()
@@ -51,7 +51,7 @@ class Room(Model):
     def __str__(self) -> str:
         s = ""
         if self.code and self.building:
-            s = f"{self.building.identifier} {self.code}".strip()
+            s = f"{self.building.code} {self.code}".strip()
         if self.name:
             s = f"{s} ({self.name})" if s else self.name
         return s
