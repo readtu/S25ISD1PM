@@ -10,7 +10,7 @@ from django.conf import settings
 from requests import Session, post
 
 from classes_app.models import Class
-from departments_app.models import Department, Subject
+from departments_app.models import Subject
 from locations_app.models import Building, Room
 from semesters_app.models import Semester, Term
 
@@ -156,7 +156,6 @@ class BannerResources:
                 uuid=subject["id"].replace("-", ""),
                 name=subject["title"],
                 code=subject["abbreviation"],
-                department=Department.objects.first(),
             )
             for subject in self.client.get_subjects(**kwargs)
         ]

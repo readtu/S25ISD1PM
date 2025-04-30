@@ -1,5 +1,6 @@
 django==5.1.4
 dotenv==0.9.9
 markdown==3.7
-uwsgi==2.0.28
 psycopg2-binary==2.9.10
+requests==2.32.3
+uwsgi==2.0.28

@@ -28,8 +28,8 @@ class Department(Model):
 class Subject(Model):
     uuid = UUIDField(primary_key=True, default=uuid4)
     code = CharField(max_length=255)
-    name = CharField(max_length=255, null=True)
-    department = ForeignKey(Department, on_delete=CASCADE, related_name="subjects")
+    name = CharField(max_length=255)
+    department = ForeignKey(Department, on_delete=CASCADE, related_name="subjects", null=True)
 
     class Meta:
         ordering = ["code"]

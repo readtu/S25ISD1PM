@@ -10,11 +10,13 @@ from departments_app.models import Department, School, Subject
 @require_GET
 def list_departments(request: HttpRequest) -> HttpResponse:
     schools = School.objects.all()
+    subjects = Subject.objects.filter(department__isnull=True)
     return render(
         request,
         f"{__package__}/{list_departments.__name__}.html",
         {
             "schools": schools,
+            "subjects": subjects,
         },
     )
 
@@ -114,11 +116,14 @@ def create_subject(request: HttpRequest) -> HttpResponse:
     except KeyError:
         department = None
     if request.method == "POST":
-        subject = Subject.objects.create(
+        subject = Subject(
             name=request.POST["name"],
             code=request.POST["code"],
-            department=Department.objects.get(uuid=request.POST["department"]),
         )
+        department = request.POST.get("department", "")
+        if department:
+            subject.department = Department.objects.get(uuid=department)
+        subject.save()
         success(request, f"Created {subject}.")
         return redirect(list_departments.__name__)
     return render(
@@ -137,7 +142,9 @@ def edit_subject(request: HttpRequest, uuid: str) -> HttpResponse:
     if request.method == "POST":
         subject.name = request.POST["name"]
         subject.code = request.POST["code"]
-        subject.department = Department.objects.get(uuid=request.POST["department"])
+        department = request.POST.get("department", "")
+        if department:
+            subject.department = Department.objects.get(uuid=department)
         subject.save()
         success(request, f"Saved changes to {subject}.")
         return redirect(list_departments.__name__)

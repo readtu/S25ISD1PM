@@ -12,7 +12,7 @@
         </div>
     </div>
 </section>
-<section class="container py-5">
+<section class="container pt-5">
     <div class="d-flex flex-column gap-4">
         {% if schools.count %}
         {% for school in schools %}
@@ -90,6 +90,24 @@
         <div class="alert alert-info">No schools are available.</div>
         {% endif %}
     </div>
+</section>
+<section class="container py-5">
+    {% if subjects %}
+    <div class="d-flex flex-wrap gap-2 hide-empty">
+        {% for subject in subjects %}
+        <div class="rounded bg-body-tertiary py-1 px-2 d-flex gap-2 align-items-center">
+            <strong>{{subject.code}}</strong>{{subject.name}}
+            <form action="{% url 'delete_subject' subject.uuid %}" method="POST"
+                data-confirm="Are you sure you want to delete {{subject}}?" class="d-flex gap-2 ms-2">
+                <a href="{% url 'edit_subject' subject.uuid %}" class="btn btn-text p-0 color-primary"><i
+                        class="bi bi-pencil color-primary"></i></a>
+                {% csrf_token %}
+                <button class="btn btn-text p-0 color-primary" type="submit"><i class="bi bi-x-lg"></i></button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 </section>
 {% endblock %}
 {% endspaceless %}

@@ -18,7 +18,8 @@
         </div>
         <div class="mb-3">
             <label for="Department" class="form-label">Department</label>
-            <select name="department" id="department" name="department" class="form-select" required>
+            <select name="department" id="department" name="department" class="form-select">
+                <option value="" {% if not subject.department %} selected {% endif %}>None</option>
                 {% for department in departments %}
                 <option value="{{department.uuid}}" {% if department == subject.department %} selected {% endif %}>{{department}}</option>
                 {% endfor %}
