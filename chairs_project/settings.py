@@ -45,15 +45,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "chairs_app",
-    "changes_app",
-    "classes_app",
-    "locations_app",
-    "semesters_app",
-    "help_app",
-    "departments_app",
-    "users_app",
 ]
+
+
+INSTALLED_APPS.extend(path.stem for path in BASE_DIR.glob("*_app") if path.is_dir())
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -92,7 +87,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
-    } if DEBUG else {
+    }
+    if DEBUG
+    else {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "chairs_db",
         "USER": "chairs_user",
