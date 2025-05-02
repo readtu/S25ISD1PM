@@ -9,7 +9,7 @@ from typing import Any, Self
 from django.conf import settings
 from requests import Session, post
 
-from classes_app.models import Class
+from courses_app.models import Course, Section
 from departments_app.models import Subject
 from locations_app.models import Building, Room
 from semesters_app.models import Semester, Term
@@ -117,20 +117,23 @@ class BannerClient:
     def get_sections(self, **kwargs: Any) -> list[dict[str, Any]]:
         return self.get_resource("section-schedule-information", **kwargs)
 
+    def get_courses(self, **kwargs: Any) -> list[dict[str, Any]]:
+        return self.get_resource("courses", **kwargs)
+
 
 class BannerResources:
     def __init__(self):
         self.client = BannerClient()
 
-    def get_buildings(self, **kwargs: Any) -> list[Building]:
-        return [
+    def get_buildings(self, **kwargs: Any) -> Iterable[Building]:
+        return (
             Building(
                 uuid=building["id"].replace("-", ""),
                 name=building["title"],
-                code=building["code"],
+                number=building["code"],
             )
             for building in self.client.get_buildings(**kwargs)
-        ]
+        )
 
     def get_rooms(self, **kwargs: Any) -> Iterable[Room]:
         for room in self.client.get_rooms(**kwargs):
@@ -150,23 +153,30 @@ class BannerResources:
             except Building.DoesNotExist:
                 pass
 
-    def get_subjects(self, **kwargs: Any) -> list[Subject]:
-        return [
+    def get_subjects(self, **kwargs: Any) -> Iterable[Subject]:
+        return (
             Subject(
                 uuid=subject["id"].replace("-", ""),
                 name=subject["title"],
-                code=subject["abbreviation"],
+                number=subject["abbreviation"],
             )
             for subject in self.client.get_subjects(**kwargs)
-        ]
+        )
 
-    def get_classes(self, **kwargs: Any) -> Iterable[Class]:
+    def get_courses(self, **kwargs: Any) -> Iterable[Course]:
+        for course in self.client.get_courses(**kwargs):
+            yield Course(
+                subject=Subject.objects.get(uuid=course["subject"]["id"]),
+                name=course["title"].strip(),
+                number=course["number"],
+            )
+
+    def get_sections(self, **kwargs: Any) -> Iterable[Section]:
         for section in self.client.get_sections(**kwargs):
             try:
-                yield Class(
-                    name=section["courseTypeTitles"][-1]["typeValue"],
-                    subject=Subject.objects.get(code=section["subjectAbbreviation"]),
-                    code=section["courseNumber"],
+                yield Section(
+                    uuid=section["sectionsId"],
+                    subject=Subject.objects.get(uuid=section["subjectId"]),
                     room=Room.objects.get(
                         uuid=section["instructionalEvents"][-1]["locations"][-1][
                             "locationRoomId"
@@ -194,6 +204,8 @@ def populate():
     Subject.objects.bulk_create(br.get_subjects())
     Room.objects.all().delete()
     Room.objects.bulk_create(br.get_rooms())
+    Course.objects.all().delete()
+    Course.objects.bulk_create(br.get_courses())
     Semester.objects.all().delete()
-    Class.objects.all().delete()
-    Class.objects.bulk_create(br.get_classes())
+    Section.objects.all().delete()
+    Section.objects.bulk_create(br.get_sections())

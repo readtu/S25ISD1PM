@@ -62,8 +62,8 @@ def create_semester(request: HttpRequest) -> HttpResponse:
 @require_http_methods(["GET", "POST"])
 def view_semester(request: HttpRequest, uuid: str) -> HttpResponse:
     semester = get_object_or_404(Semester, uuid=uuid)
-    classes = semester.classes.all()
-    classes_codes = sorted(set(classes.values_list("code", flat=True)))
+    sections = semester.sections.all()
+    classes_codes = sorted(set(sections.values_list("code", flat=True)))
     professors = User.objects.filter(role=UserRole.PROFESSOR).order_by("name")
     buildings = Building.objects.all().prefetch_related("rooms")
     return render(
@@ -71,7 +71,7 @@ def view_semester(request: HttpRequest, uuid: str) -> HttpResponse:
         f"{__package__}/{view_semester.__name__}.html",
         {
             "semester": semester,
-            "classes": classes,
+            "sections": sections,
             "course_codes": classes_codes,
             "professors": professors,
             "buildings": buildings,

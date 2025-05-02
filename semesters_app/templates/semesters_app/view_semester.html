@@ -133,18 +133,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for class in classes %}
-                        <tr data-attribute-course_code="{{class.code}}" data-attribute-subject="{{class.subject.name}}"
-                            data-attribute-location="{{class.room}}" data-queried>
+                        {% for section in section %}
+                        <tr data-attribute-course_code="{{section.code}}" data-attribute-subject="{{section.subject.name}}"
+                            data-attribute-location="{{section.room}}" data-queried>
                             <th scope="row">
                                 <div>
-                                    <div>{{class.subject.code}} {{class.code}}</div>
-                                    <small class="text-muted fw-normal">{{class.name}}</small>
+                                    <div>{{section.subject.code}} {{section.code}}</div>
+                                    <small class="text-muted fw-normal">{{section.name}}</small>
 
                                 </div>
                             </th>
-                            <td><a href="{{class.room.get_absolute_url}}">{{class.room.building.code}}
-                                    {{class.room.code}}</a></td>
+                            <td><a href="{{section.room.get_absolute_url}}">{{section.room.building.code}}
+                                    {{section.room.code}}</a></td>
                         </tr>
                         {% endfor %}
                     </tbody>
