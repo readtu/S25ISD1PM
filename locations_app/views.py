@@ -64,6 +64,15 @@ def edit_building(request: HttpRequest, uuid: str) -> HttpResponse:
 
 
 @require_POST
+def toggle_building_availability(request: HttpRequest, uuid: str) -> HttpResponse:
+    building = get_object_or_404(Building, uuid=uuid)
+    building.available = not building.available
+    building.save()
+    success(request, f"Made {building} {'available' if building.available else 'unavailable'}.")
+    return redirect(building)
+
+
+@require_POST
 def delete_building(request: HttpRequest, uuid: str) -> HttpResponse:
     building = get_object_or_404(Building, uuid=uuid)
     name = str(building)
@@ -151,6 +160,15 @@ def edit_room(request: HttpRequest, uuid: str) -> HttpResponse:
             "room": room,
         },
     )
+
+
+@require_POST
+def toggle_room_availability(request: HttpRequest, uuid: str) -> HttpResponse:
+    room = get_object_or_404(Room, uuid=uuid)
+    room.available = not room.available
+    room.save()
+    success(request, f"Made {room} {'available' if room.available else 'unavailable'}.")
+    return redirect(room)
 
 
 @require_POST

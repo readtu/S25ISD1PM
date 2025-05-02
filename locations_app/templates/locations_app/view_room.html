@@ -11,12 +11,24 @@
     <div class="mb-3 d-flex justify-content-between align-items-center">
         <h1 class="mb-0">{{room}}</h1>
         <div class="d-flex gap-2">
-            <a href="{% url 'edit_room' room.uuid %}" class="btn btn-light"><i
-                    class="bi bi-pencil me-2"></i>Edit</a>
+            {% comment %}
+            <a href="{% url 'edit_room' room.uuid %}" class="btn btn-light"><i class="bi bi-pencil me-2"></i>Edit</a>
             <form action="{% url 'delete_room' room.uuid %}" method="POST"
                 data-confirm="Are you sure you want to delete {{room}}? This cannot be undone.">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-light text-danger"><i class="bi bi-trash me-2"></i>Delete</button>
+            </form>
+            {% endcomment %}
+            <form action="{% url 'toggle_room_availability' room.uuid %}" method="POST"
+                data-confirm="Are you sure you want to make {{room}} {% if room.available %}un{% endif %}available?">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-light">
+                    {% if not room.available %}
+                    <i class="bi bi-check-square text-success me-2"></i>Set to Available
+                    {% else %}
+                    <i class="bi bi-x-square text-danger me-2"></i>Set to Unvailable
+                    {% endif %}
+                </button>
             </form>
         </div>
     </div>

@@ -8,11 +8,11 @@ urlpatterns = [
         views.list_buildings,
         name=views.list_buildings.__name__,
     ),
-    path(
-        "buildings/create",
-        views.create_building,
-        name=views.create_building.__name__,
-    ),
+    # path(
+    #     "buildings/create",
+    #     views.create_building,
+    #     name=views.create_building.__name__,
+    # ),
     path(
         "buildings/<uuid:uuid>",
         views.view_building,
@@ -24,15 +24,20 @@ urlpatterns = [
         name=views.edit_building.__name__,
     ),
     path(
-        "buildings/<uuid:uuid>/delete",
-        views.delete_building,
-        name=views.delete_building.__name__,
+        "buildings/<uuid:uuid>/toggle-availability",
+        views.toggle_building_availability,
+        name=views.toggle_building_availability.__name__,
     ),
-    path(
-        "buildings/<uuid:building_uuid>/create-room",
-        views.create_room,
-        name=views.create_room.__name__,
-    ),
+    # path(
+    #     "buildings/<uuid:uuid>/delete",
+    #     views.delete_building,
+    #     name=views.delete_building.__name__,
+    # ),
+    # path(
+    #     "buildings/<uuid:building_uuid>/create-room",
+    #     views.create_room,
+    #     name=views.create_room.__name__,
+    # ),
     path(
         "rooms",
         views.list_rooms,
@@ -49,8 +54,13 @@ urlpatterns = [
         name=views.edit_room.__name__,
     ),
     path(
-        "rooms/<uuid:uuid>/delete",
-        views.delete_room,
-        name=views.delete_room.__name__,
+        "rooms/<uuid:uuid>/toggle-availability",
+        views.toggle_room_availability,
+        name=views.toggle_room_availability.__name__,
     ),
+    # path(
+    #     "rooms/<uuid:uuid>/delete",
+    #     views.delete_room,
+    #     name=views.delete_room.__name__,
+    # ),
 ]
