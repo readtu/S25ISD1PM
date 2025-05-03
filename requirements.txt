@@ -1,3 +1,5 @@
+channels==4.2.2
+daphne==4.1.2
 django==5.1.4
 dotenv==0.9.9
 markdown==3.7
