@@ -96,7 +96,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "chairs_db",
         "USER": "chairs_user",
-        "PASSWORD": environ["CHAIRS_DB_PASSWORD"],
+        "PASSWORD": environ["DATABASE_PASSWORD"],
     },
 }
 
