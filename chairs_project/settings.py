@@ -41,6 +41,7 @@ if DEBUG:
     ]
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
@@ -76,6 +77,8 @@ TEMPLATES = [
         },
     },
 ]
+
+ASGI_APPLICATION = "chairs_project.asgi.application"
 
 WSGI_APPLICATION = "chairs_project.wsgi.application"
 
