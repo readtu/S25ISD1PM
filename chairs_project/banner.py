@@ -1,14 +1,16 @@
 """Module for implementing Ellucian Banner API integration."""
 
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from datetime import UTC, date, datetime, timedelta
 from functools import wraps
 from logging import DEBUG, basicConfig, getLogger
+from threading import Thread
 from typing import Any, Self
 
 from django.conf import settings
 from requests import Session, post
 
+from chairs_project.utils import DAYS_OF_WEEK_NAME, DaysOfWeek
 from courses_app.models import Course, Section
 from departments_app.models import Subject
 from locations_app.models import Building, Room
@@ -20,17 +22,20 @@ ELLUCIAN_URL = "https://integrate.elluciancloud.com"
 class BannerClient:
     """A client for interacting with the Ellucian Banner API."""
 
-    timeout = 10
+    progress: float = 1
+    timeout: int = 10
+    progress_handlers: list[Callable[[Self], None]]
     last_authenticated: datetime | None = None
     authentication_expires: timedelta = timedelta(minutes=1)
 
     def __init__(self):
         """Initialize an Ellucian Banner client."""
         self.session = Session()
-        self.logger = getLogger("requests.packages.urllib3")
+        self.logger = getLogger("urllib3")
+        self.progress_handlers = []
         if settings.DEBUG:
             basicConfig()
-            getLogger("urllib3").setLevel(DEBUG)
+            self.logger.setLevel(DEBUG)
 
     def authenticate(self) -> None:
         response = post(
@@ -61,37 +66,51 @@ class BannerClient:
 
         return decorated
 
+    def _handle_progress(self, progress: float) -> None:
+        self.progress = progress
+        if settings.DEBUG:
+            self.logger.info("%2f%%", self.progress * 100)
+        for handler in self.progress_handlers:
+            handler(self)
+
     def _paginate(
         self,
         *args,
         page_size: int | None = None,
         maximum: int | None = None,
         **kwargs: Any,
-    ):
-        output = []
+    ) -> Iterable[dict]:
         params = kwargs.pop("params", {})
         offset: int = 0
         while True:
+            if maximum:
+                self._handle_progress(offset / maximum)
+            else:
+                self._handle_progress(0)
             params["offset"] = str(offset)
             if page_size:
                 params["limit"] = str(page_size)
             try:
                 self.smart_authenticate()
                 response = self.session.get(*args, **kwargs, params=params)
+                json = response.json()
+                _maximum = response.headers.get("x-hedtech-totalcount", "")
+                # If this request probably was not supposed to be paginated
+                if not _maximum:
+                    break
+                # If we specified no other maximum
+                if not maximum:
+                    maximum = int(_maximum)
+                offset += len(json)
+                yield from json
+                if maximum and offset >= maximum:
+                    break
             except KeyboardInterrupt:
                 break
-            json = response.json()
-            length = len(json)
-            if not length:
-                break
-            output.extend(json)
-            _maximum = response.headers.get("x-hedtech-totalcount", "")
-            if not maximum and _maximum:
-                maximum = int(_maximum)
-            offset += length
-            if maximum and offset >= maximum:
-                break
-        return output
+        if maximum:
+            self._handle_progress(offset / maximum)
+        else:
+            self._handle_progress(1)
 
     @_check_authentication
     def get_resources(self) -> list[str]:
@@ -100,25 +119,27 @@ class BannerClient:
             for resource in self.session.get(f"{ELLUCIAN_URL}/appconfig").json()["ownerOverrides"]
         ]
 
-    def get_resource(self, resource: str, **kwargs: Any) -> list[dict[str, Any]]:
+    def get_resource(self, resource: str, **kwargs: Any) -> Iterable[dict[str, Any]]:
         if settings.DEBUG:
-            assert resource in self.get_resources()
-        return self._paginate(f"{ELLUCIAN_URL}/api/{resource}", **kwargs)
+            assert resource in self.get_resources(), (
+                f"{resource} is not an available Banner resource"
+            )
+        yield from self._paginate(f"{ELLUCIAN_URL}/api/{resource}", **kwargs)
 
-    def get_buildings(self, **kwargs: Any) -> list[dict[str, Any]]:
-        return self.get_resource("buildings", **kwargs)
+    def get_buildings(self, **kwargs: Any) -> Iterable[dict[str, Any]]:
+        yield from self.get_resource("buildings", **kwargs)
 
-    def get_rooms(self, **kwargs: Any) -> list[dict[str, Any]]:
-        return self.get_resource("rooms", **kwargs)
+    def get_rooms(self, **kwargs: Any) -> Iterable[dict[str, Any]]:
+        yield from self.get_resource("rooms", **kwargs)
 
-    def get_subjects(self, **kwargs: Any) -> list[dict[str, Any]]:
-        return self.get_resource("subjects", **kwargs)
+    def get_subjects(self, **kwargs: Any) -> Iterable[dict[str, Any]]:
+        yield from self.get_resource("subjects", **kwargs)
 
-    def get_sections(self, **kwargs: Any) -> list[dict[str, Any]]:
-        return self.get_resource("section-schedule-information", **kwargs)
+    def get_sections(self, **kwargs: Any) -> Iterable[dict[str, Any]]:
+        yield from self.get_resource("section-schedule-information", **kwargs)
 
-    def get_courses(self, **kwargs: Any) -> list[dict[str, Any]]:
-        return self.get_resource("courses", **kwargs)
+    def get_courses(self, **kwargs: Any) -> Iterable[dict[str, Any]]:
+        yield from self.get_resource("courses", **kwargs)
 
 
 class BannerResources:
@@ -130,7 +151,7 @@ class BannerResources:
             Building(
                 uuid=building["id"].replace("-", ""),
                 name=building["title"],
-                number=building["code"],
+                code=building["code"],
             )
             for building in self.client.get_buildings(**kwargs)
         )
@@ -141,7 +162,7 @@ class BannerResources:
                 yield Room(
                     uuid=room["id"].replace("-", ""),
                     building=Building.objects.get(uuid=room["building"]["id"].replace("-", "")),
-                    code=room["number"],
+                    number=room["number"],
                     name=room.get("title", None),
                     default_capacity=int(
                         room["occupancies"][-1]["maxOccupancy"] if "occupancies" in room else 0,
@@ -158,7 +179,7 @@ class BannerResources:
             Subject(
                 uuid=subject["id"].replace("-", ""),
                 name=subject["title"],
-                number=subject["abbreviation"],
+                code=subject["abbreviation"],
             )
             for subject in self.client.get_subjects(**kwargs)
         )
@@ -166,6 +187,7 @@ class BannerResources:
     def get_courses(self, **kwargs: Any) -> Iterable[Course]:
         for course in self.client.get_courses(**kwargs):
             yield Course(
+                uuid=course["id"],
                 subject=Subject.objects.get(uuid=course["subject"]["id"]),
                 name=course["title"].strip(),
                 number=course["number"],
@@ -174,14 +196,27 @@ class BannerResources:
     def get_sections(self, **kwargs: Any) -> Iterable[Section]:
         for section in self.client.get_sections(**kwargs):
             try:
+                events = section["instructionalEvents"]
+                assert len(events) == 1, f"Can only store 1 event per section, not {len(events)}"
+                event = events[0]
+                repeat_type = event["recurrenceRepeatRuleType"]
+                assert repeat_type == "weekly", f"Can only store weekly events, not {repeat_type}"
+                days_of_week = [
+                    str(DAYS_OF_WEEK_NAME.index(DaysOfWeek[day.upper()]))
+                    for day in event.get("recurrenceRepeatRuleDaysOfWeek", [])
+                ]
+                start_date = datetime.fromisoformat(event["recurrenceStartOn"])
+                start_time = start_date.time()
+                end_date = datetime.fromisoformat(event["recurrenceEndOn"])
+                end_time = end_date.time()
+
+                room = Room.objects.get(
+                    uuid=event["locations"][-1]["locationRoomId"].replace("-", ""),
+                )
                 yield Section(
                     uuid=section["sectionsId"],
-                    subject=Subject.objects.get(uuid=section["subjectId"]),
-                    room=Room.objects.get(
-                        uuid=section["instructionalEvents"][-1]["locations"][-1][
-                            "locationRoomId"
-                        ].replace("-", ""),
-                    ),
+                    course=Course.objects.get(uuid=section["courseId"]),
+                    room=room,
                     semester=Semester.objects.get_or_create(
                         start=date.fromisoformat(section["sectionStartOn"]),
                         end=date.fromisoformat(section["sectionEndOn"]),
@@ -190,9 +225,34 @@ class BannerResources:
                             "term": Term.FALL,
                         },
                     )[0],
+                    capacity=room.maximum_capacity,
+                    days_of_week="".join(days_of_week),
+                    start_time=start_time,
+                    end_time=end_time,
                 )
-            except (Subject.DoesNotExist, Room.DoesNotExist, KeyError, IndexError) as e:
-                pass
+            except (
+                Subject.DoesNotExist,
+                Room.DoesNotExist,
+                Course.DoesNotExist,
+                KeyError,
+                IndexError,
+                AssertionError,
+            ) as e:
+                print(repr(e))
+
+
+def create_task(
+    banner_client: BannerClient,
+    result: list,
+    progress_callback: Callable[[BannerClient], None],
+):
+    def accumulate_result():
+        result.extend(banner_client.get_buildings())
+
+    banner_client.progress_handlers.append(progress_callback)
+    thread = Thread(target=accumulate_result)
+    thread.start()
+    return thread
 
 
 def populate():

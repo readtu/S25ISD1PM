@@ -1,13 +1,14 @@
 # ruff: noqa: D103
 
+from datetime import datetime, timedelta
+
 from django.contrib.messages import success
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.timezone import now
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from departments_app.models import Subject
-from locations_app.models import Building
+from courses_app.models import Section
 from semesters_app.models import (
     AcademicYear,
     Semester,
@@ -62,20 +63,36 @@ def create_semester(request: HttpRequest) -> HttpResponse:
 @require_http_methods(["GET", "POST"])
 def view_semester(request: HttpRequest, uuid: str) -> HttpResponse:
     semester = get_object_or_404(Semester, uuid=uuid)
-    sections = semester.sections.all()
-    classes_codes = sorted(set(sections.values_list("code", flat=True)))
+    sections = Section.objects.filter(semester=semester)
+    course_codes = sorted({section.course.code for section in sections})
     professors = User.objects.filter(role=UserRole.PROFESSOR).order_by("name")
-    buildings = Building.objects.all().prefetch_related("rooms")
+    subjects = {section.course.subject for section in sections}
+    rooms = {section.room for section in sections}
+    events = []
+    for section in sections:
+        semester_offset = semester.start
+        while semester_offset <= semester.end:
+            if str(semester_offset.weekday()) in section.days_of_week:
+                events.append(
+                    {
+                        "title": section.course.code,
+                        "start": datetime.combine(semester_offset, section.start_time),
+                        "end": datetime.combine(semester_offset, section.end_time),
+                    },
+                )
+            semester_offset += timedelta(days=1)
+
     return render(
         request,
         f"{__package__}/{view_semester.__name__}.html",
         {
             "semester": semester,
             "sections": sections,
-            "course_codes": classes_codes,
+            "course_codes": course_codes,
             "professors": professors,
-            "buildings": buildings,
-            "subjects": Subject.objects.order_by("name"),
+            "rooms": rooms,
+            "subjects": subjects,
+            "events": events,
         },
     )
 

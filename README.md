@@ -4,6 +4,24 @@ Chairs is a class scheduling website designed for use by Taylor University.
 
 Developed by the Zeta Core team in the Spring 2025 semester for the Information Systems Design class at Taylor University, taught by Professor Doug Read. 💪
 
+## Configuration & Execution
+
+1. Install [Python 3.13](https://python.org), and configure it properly on your PATH.
+2. Install all the necessary requirements from `requirements.txt` by running:
+    ```bash
+    pip install -r requirements.txt
+    ```
+3. Install [Dart Sass](https://sass-lang.com).
+4. Create the `.env` file.
+5. Instantiate the database by running:
+    ```bash
+    python manage.py migrate
+    ```
+6. Start the development server by clicking the Play button in the Run & Debug pane in Visual Studio Code, or otherwise run this command:
+    ```bash
+    python manage.py runserver
+    ```
+
 ## Linting & Formatting
 
 The code in this repo was [linted](https://code.visualstudio.com/docs/python/linting) and formatted with [Ruff](https://docs.astral.sh/ruff/). Please continue using Ruff to lint and format the code frequently, to avoid inconsistent syntax, ambiguous code, sneaky bugs, and unnecessary Git merge conflicts due to whitespace.
@@ -40,3 +58,12 @@ When in production, this app uses PostgreSQL as the database backend. This does 
     2. Skip the MySQL dependency by commenting it out of the requirements file locally or installing the listed dependencies one-by-one
 -   **I'm getting an `OperationalError: no such column/table`.** Make sure your database exists, has migrations made for models.py, and has the migrations applied. See the [databases](#database) section.
 -   **The site looks unstyled.** Make sure you have compiled the SCSS. See the [Styling](#styling) section.
+
+---
+
+- Install Nginx
+- /etc/nginx/nginx.conf
+- /etc/nginx/sites-available/chairs.conf
+- /home/chairs_user/chairs/S25ISD1PM
+- /home/chairs_user/chairs/bin/uwsgi
+- /etc/systemd/system/chairs_uwsgi.service

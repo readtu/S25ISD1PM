@@ -114,7 +114,7 @@ def create_room(request: HttpRequest, building_uuid: str) -> HttpResponse:
         room = Room.objects.create(
             building=building,
             name=request.POST.get("name", "") or None,
-            code=request.POST.get("code", "") or None,
+            number=request.POST.get("code", "") or None,
             default_capacity=int(request.POST["default_capacity"]),
             maximum_capacity=int(request.POST["maximum_capacity"]),
         )
@@ -146,7 +146,7 @@ def edit_room(request: HttpRequest, uuid: str) -> HttpResponse:
     room = get_object_or_404(Room, uuid=uuid)
     if request.method == "POST":
         room.name = request.POST.get("name", "") or None
-        room.code = request.POST.get("code", "") or None
+        room.number = request.POST.get("code", "") or None
         room.available = request.POST.get("available", "off") == "on"
         room.default_capacity = int(request.POST["default_capacity"])
         room.maximum_capacity = int(request.POST["maximum_capacity"])
