@@ -14,7 +14,9 @@ from chairs_project.utils import DAYS_OF_WEEK_NAME, DaysOfWeek
 from courses_app.models import Course, Section
 from departments_app.models import Subject
 from locations_app.models import Building, Room
-from semesters_app.models import Semester, Term
+from semesters_app.models import Semester
+
+from uuid import UUID
 
 ELLUCIAN_URL = "https://integrate.elluciancloud.com"
 
@@ -138,6 +140,9 @@ class BannerClient:
     def get_sections(self, **kwargs: Any) -> Iterable[dict[str, Any]]:
         yield from self.get_resource("section-schedule-information", **kwargs)
 
+    def get_semesters(self, **kwargs: Any) -> Iterable[dict[str, Any]]:
+        yield from self.get_resource("academic-periods", **kwargs)
+
     def get_courses(self, **kwargs: Any) -> Iterable[dict[str, Any]]:
         yield from self.get_resource("courses", **kwargs)
 
@@ -193,6 +198,34 @@ class BannerResources:
                 number=course["number"],
             )
 
+    def get_semesters(self, **kwargs: Any) -> Iterable[Semester]:
+        periods = self.client.get_semesters(**kwargs)
+
+        semesters = {
+            period["id"]: Semester(
+                uuid=period["id"],
+                title=period["title"],
+                start = datetime.fromisoformat(period["startOn"]).date(),
+                end = datetime.fromisoformat(period["endOn"]).date(),
+                type=period["category"]["type"],
+            )
+            for period in periods
+        }
+
+        # Set the parents for the periods being generated.
+        # This has to be done in a separate pass because
+        # it's not guaranteed that we have constructed the parents
+        # before we reach their children.
+        for period in periods:
+            parent_id_str = period["category"].get("parent", {}).get("id")
+            if parent_id_str:
+                parent_id = UUID(parent_id_str)
+                child_id = UUID(period["id"])
+                semesters[child_id].parent = semesters.get(parent_id)
+
+        yield from semesters.values()
+
+
     def get_sections(self, **kwargs: Any) -> Iterable[Section]:
         for section in self.client.get_sections(**kwargs):
             try:
@@ -217,14 +250,7 @@ class BannerResources:
                     uuid=section["sectionsId"],
                     course=Course.objects.get(uuid=section["courseId"]),
                     room=room,
-                    semester=Semester.objects.get_or_create(
-                        start=date.fromisoformat(section["sectionStartOn"]),
-                        end=date.fromisoformat(section["sectionEndOn"]),
-                        defaults={
-                            "year": section["sectionStartOn"].split("-", 2)[0],
-                            "term": Term.FALL,
-                        },
-                    )[0],
+                    semester=Semester.objects.get(uuid=section["sectionReportingAcademicPeriodId"]),
                     capacity=room.maximum_capacity,
                     days_of_week="".join(days_of_week),
                     start_time=start_time,
@@ -267,5 +293,7 @@ def populate():
     Course.objects.all().delete()
     Course.objects.bulk_create(br.get_courses())
     Semester.objects.all().delete()
+    Semester.objects.bulk_create(br.get_semesters())
     Section.objects.all().delete()
     Section.objects.bulk_create(br.get_sections())
+    

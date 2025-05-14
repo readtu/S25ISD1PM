@@ -23,40 +23,28 @@
     </form>
 </section>
 <section class="container py-5">
-    <div class="d-flex flex-column gap-5">
-        {% for year, semesters in years %}
-        <div>
-            <h2 class="h5 mb-2 {% if now_academic_year == year %} text-primary {% endif %}">{{year}}</h2>
-            <div class="d-flex flex-column gap-2">
-                <div class="list-group">
-                    {% if semesters %}
-                    {% for semester in semesters %}
-                    <div class="list-group-item">
-                        <div class="row g-0">
-                            <div class="col col-3 d-flex justify-content-start align-items-center">
-                                <a href="{{semester.get_absolute_url}}" class="text-reset"><i
-                                        class="bi bi-asterisk text-primary me-2"></i>{{semester}}</a>
-                            </div>
-                            <div class="col col-3 d-flex justify-content-start align-items-center text-muted">
-                                {{semester.start|date:"F j"}} &ndash; {{semester.end|date:"F j"}}
-                            </div>
-                            <div class="col col-3 d-flex justify-content-start align-items-center text-muted">
-                                {{semester.sections.count}} sections
-                            </div>
-                            <div class="col col-3 d-flex justify-content-end align-items-center">
-                                <a href="{% url 'copy_to_semester' semester.pk %}" class="btn btn-sm btn-light"><i
-                                        class="bi bi-upload me-2"></i>Copy to</a>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                    {% else %}
-                    <div class="alert alert-info">No semesters are available for this year.</div>
-                    {% endif %}
-                </div>
+    {% if semesters %}
+    {% for semester in semesters %}
+    <div class="list-group-item">
+        <div class="row g-0">
+            <div class="col col-3 d-flex justify-content-start align-items-center">
+                <a href="{{semester.get_absolute_url}}" class="text-reset"><i
+                        class="bi bi-asterisk text-primary me-2"></i>{{semester}}</a>
+            </div>
+            <div class="col col-3 d-flex justify-content-start align-items-center text-muted">
+                {{semester.start|date:"F j"}} &ndash; {{semester.end|date:"F j"}}
+            </div>
+            <div class="col col-3 d-flex justify-content-start align-items-center text-muted">
+                {{semester.sections.count}} sections
+            </div>
+            <div class="col col-3 d-flex justify-content-end align-items-center">
+                <a href="{% url 'copy_to_semester' semester.pk %}" class="btn btn-sm btn-light"><i
+                        class="bi bi-upload me-2"></i>Copy to</a>
             </div>
         </div>
-        {% endfor %}
     </div>
-</section>
+    {% endfor %}
+    {% else %}
+    <div class="alert alert-info">No semesters are available for this year.</div>
+    {% endif %}
 {% endblock %}

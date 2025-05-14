@@ -3,51 +3,40 @@
 from datetime import datetime, timedelta
 
 from django.contrib.messages import success
+from django.db.models import Prefetch
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.timezone import now
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from courses_app.models import Section
-from semesters_app.models import (
-    AcademicYear,
-    Semester,
-    Term,
-    group_semesters_by_academic_year,
-    group_semesters_by_year,
-)
+from semesters_app.models import Semester
 from users_app.models import User, UserRole
-
 
 @require_GET
 def list_semesters(request: HttpRequest) -> HttpResponse:
-    group_by_academic_year: bool = request.GET.get("group_by", "academic_year") == "academic_year"
-    semesters = Semester.objects.all()
-    if group_by_academic_year:
-        years = group_semesters_by_academic_year(semesters)
-    else:
-        years = group_semesters_by_year(semesters)
-    now_academic_year = AcademicYear(now().year)
-    years.setdefault(now_academic_year, [])
+    semesters = Semester.objects.all().order_by("start").prefetch_related(
+        Prefetch("sections", queryset=Section.objects.all())
+    )
+    return render(request, "semesters_app/list_semesters.html", {"semesters": semesters})
+"""     years = {}
+    for year in Semester.objects.filter(type=PeriodTypes.YEAR):
+        years[year] = {}
+        for term in year.sub_periods.all():
+            years[year][term] = term.sub_periods.all()
     return render(
         request,
         f"{__package__}/{list_semesters.__name__}.html",
         {
-            "semesters": semesters,
-            "years": years.items(),
-            "now_academic_year": now_academic_year,
-            "group_by_academic_year": group_by_academic_year,
+            "years": years,
         },
-    )
+    )"""
 
 
 @require_http_methods(["GET", "POST"])
 def create_semester(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
-        semester = Semester.objects.create(
-            year=request.POST["year"],
-            term=Term(int(request.POST["term"])),
-        )
+        semester = Semester.objects.create()
         success(request, f"Created {semester}.")
         return redirect(semester)
     now_ = now().year
