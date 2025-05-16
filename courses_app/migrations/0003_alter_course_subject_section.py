@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
         ('courses_app', '0002_alter_course_options_rename_code_course_number'),
         ('departments_app', '0003_alter_subject_department_alter_subject_name'),
         ('locations_app', '0007_alter_building_code_alter_building_name_and_more'),
-        ('semesters_app', '0005_alter_semester_unique_together'),
+        ('periods_app', '0005_alter_period_unique_together'),
     ]
 
     operations = [
@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
                 ('is_suggestion', models.BooleanField(default=False)),
                 ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sections', to='courses_app.course')),
                 ('room', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='sections', to='locations_app.room')),
-                ('semester', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sections', to='semesters_app.semester')),
+                ('period', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sections', to='periods_app.period')),
             ],
         ),
     ]

@@ -7,37 +7,37 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('semesters_app', '0005_alter_semester_unique_together'),
+        ('periods_app', '0005_alter_period_unique_together'),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='semester',
+            name='period',
             options={'ordering': ['parent__uuid', 'start']},
         ),
         migrations.RemoveField(
-            model_name='semester',
+            model_name='period',
             name='term',
         ),
         migrations.RemoveField(
-            model_name='semester',
+            model_name='period',
             name='year',
         ),
         migrations.AddField(
-            model_name='semester',
+            model_name='period',
             name='parent',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='sub_periods', to='semesters_app.semester'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='sub_periods', to='periods_app.period'),
         ),
         migrations.AddField(
-            model_name='semester',
+            model_name='period',
             name='title',
-            field=models.CharField(default='Existing semester', max_length=100),
+            field=models.CharField(default='Existing period', max_length=100),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='semester',
+            model_name='period',
             name='type',
-            field=models.CharField(choices=[('year', 'Year'), ('term', 'Term'), ('subterm', 'Subterm')], default='semester title', max_length=50),
+            field=models.CharField(choices=[('year', 'Year'), ('term', 'Term'), ('subterm', 'Subterm')], default='period title', max_length=50),
             preserve_default=False,
         ),
     ]

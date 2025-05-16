@@ -10,13 +10,13 @@
             <legend class="h6">Group by</legend>
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="group_by" id="group_by__none" value="none"
-                    data-refresh {%if not group_by_semester%} checked {%endif%}>
+                    data-refresh {%if not group_by_period%} checked {%endif%}>
                 <label class="form-check-label" for="group_by__none">None</label>
             </div>
             <div class="form-check">
-                <input class="form-check-input" type="radio" name="group_by" id="group_by__semester" value="semester"
-                    data-refresh {%if group_by_semester%} checked {%endif%}>
-                <label class="form-check-label" for="group_by__semester">Semester</label>
+                <input class="form-check-input" type="radio" name="group_by" id="group_by__period" value="period"
+                    data-refresh {%if group_by_period%} checked {%endif%}>
+                <label class="form-check-label" for="group_by__period">Period</label>
             </div>
         </fieldset>
         <fieldset>

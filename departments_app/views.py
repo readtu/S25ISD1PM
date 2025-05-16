@@ -1,3 +1,5 @@
+from http import HTTPMethod
+
 from django.contrib.messages import success
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
@@ -21,9 +23,9 @@ def list_departments(request: HttpRequest) -> HttpResponse:
     )
 
 
-@require_http_methods(["GET", "POST"])
+@require_http_methods([HTTPMethod.GET, HTTPMethod.POST])
 def create_school(request: HttpRequest) -> HttpResponse:
-    if request.method == "POST":
+    if request.method == HTTPMethod.POST:
         school = School.objects.create(
             name=request.POST["name"],
         )
@@ -32,10 +34,10 @@ def create_school(request: HttpRequest) -> HttpResponse:
     return render(request, f"{__package__}/{create_school.__name__}.html")
 
 
-@require_http_methods(["GET", "POST"])
+@require_http_methods([HTTPMethod.GET, HTTPMethod.POST])
 def edit_school(request: HttpRequest, uuid: str) -> HttpResponse:
     school = get_object_or_404(School, uuid=uuid)
-    if request.method == "POST":
+    if request.method == HTTPMethod.POST:
         school.name = request.POST["name"]
         school.save()
         success(request, f"Saved changes to {school}.")
@@ -58,13 +60,13 @@ def delete_school(request: HttpRequest, uuid: str) -> HttpResponse:
     return redirect(list_departments.__name__)
 
 
-@require_http_methods(["GET", "POST"])
+@require_http_methods([HTTPMethod.GET, HTTPMethod.POST])
 def create_department(request: HttpRequest) -> HttpResponse:
     try:
         school = School.objects.get(uuid=request.GET["school"])
     except KeyError:
         school = None
-    if request.method == "POST":
+    if request.method == HTTPMethod.POST:
         department = Department.objects.create(
             name=request.POST["name"],
             school=School.objects.get(uuid=request.POST["school"]),
@@ -81,10 +83,10 @@ def create_department(request: HttpRequest) -> HttpResponse:
     )
 
 
-@require_http_methods(["GET", "POST"])
+@require_http_methods([HTTPMethod.GET, HTTPMethod.POST])
 def edit_department(request: HttpRequest, uuid: str) -> HttpResponse:
     department = get_object_or_404(Department, uuid=uuid)
-    if request.method == "POST":
+    if request.method == HTTPMethod.POST:
         department.name = request.POST["name"]
         department.school = School.objects.get(uuid=request.POST["name"])
         department.save()
@@ -109,13 +111,13 @@ def delete_department(request: HttpRequest, uuid: str) -> HttpResponse:
     return redirect(list_departments.__name__)
 
 
-@require_http_methods(["GET", "POST"])
+@require_http_methods([HTTPMethod.GET, HTTPMethod.POST])
 def create_subject(request: HttpRequest) -> HttpResponse:
     try:
         department = Department.objects.get(uuid=request.GET["department"])
     except KeyError:
         department = None
-    if request.method == "POST":
+    if request.method == HTTPMethod.POST:
         subject = Subject(
             name=request.POST["name"],
             code=request.POST["code"],
@@ -136,10 +138,10 @@ def create_subject(request: HttpRequest) -> HttpResponse:
     )
 
 
-@require_http_methods(["GET", "POST"])
+@require_http_methods([HTTPMethod.GET, HTTPMethod.POST])
 def edit_subject(request: HttpRequest, uuid: str) -> HttpResponse:
     subject = get_object_or_404(Subject, uuid=uuid)
-    if request.method == "POST":
+    if request.method == HTTPMethod.POST:
         subject.name = request.POST["name"]
         subject.code = request.POST["code"]
         department = request.POST.get("department", "")

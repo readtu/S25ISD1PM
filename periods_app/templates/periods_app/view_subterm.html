@@ -1,0 +1,210 @@
+{% extends 'chairs_app/base.html' %}
+{% block title %}{{period}}{% endblock %}
+{% block body %}
+<section class="container pt-5 pb-0">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'list_periods' %}">Periods</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{period}}</li>
+        </ol>
+    </nav>
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+        <div class="mb-2">
+            <h1 class="mb-2">{{period}}</h1>
+            <div class="mb-2">{{period.start|date:"F j"}} &ndash; {{period.end|date:"F j"}}</div>
+        </div>
+        <div class="d-flex gap-2">
+            <form action="{% url 'delete_period' period.uuid %}" method="POST"
+                data-confirm="Are you sure you want to delete {{period}}? This cannot be undone.">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-light text-danger"><i class="bi bi-trash me-2"></i>Delete</button>
+            </form>
+        </div>
+    </div>
+    <form class="row overflow-x-scroll">
+        <fieldset id="course_code" class="col col-3">
+            <legend class="h6">Code</legend>
+            <div class="d-flex mb-2 gap-2">
+                <input class="form-control" type="text" name="course_code_filter" id="course_code_filter"
+                    placeholder="Code…" data-filter-kind="course_code">
+                <button class="btn btn-light" type="button" data-resetter="course_code">
+                    <div class="bi bi-arrow-counterclockwise"></div>
+                </button>
+            </div>
+            <div class="card p-2">
+                <div class="filter-card overflow-y-scroll">
+                    {% for course_code in course_codes %}
+                    <div class="form-check" data-kind="course_code" data-value="{{course_code}}">
+                        <input class="form-check-input" type="checkbox" name="course_code"
+                            id="course_code_{{course_code}}" value="{{course_code}}" data-reset="course_code"
+                            data-query>
+                        <label class="form-check-label" for="course_code_{{course_code}}">{{course_code}}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </fieldset>
+        <fieldset id="subject" class="col col-3">
+            <legend class="h6">Subject</legend>
+            <div class="d-flex mb-2 gap-2">
+                <input class="form-control" type="text" name="subject_filter" id="subject_filter" placeholder="Subject…"
+                    data-filter-kind="subject">
+                <button class="btn btn-light" type="button" data-resetter="subject">
+                    <div class="bi bi-arrow-counterclockwise"></div>
+                </button>
+            </div>
+            <div class="card p-2">
+                <div class="filter-card overflow-y-scroll">
+                    {% for subject in subjects %}
+                    <div class="form-check" data-kind="subject" data-value="{{subject.name}}">
+                        <input class="form-check-input" type="checkbox" name="subject" id="subject_{{subject.pk}}"
+                            value="{{subject.pk}}" data-reset="subject" data-query>
+                        <label class="form-check-label" for="subject_{{subject.pk}}">{{subject.name}}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </fieldset>
+        <fieldset id="professor" class="col col-3">
+            <legend class="h6">Professor</legend>
+            <div class="d-flex mb-2 gap-2">
+                <input class="form-control" type="text" name="professor_filter" id="professor_filter"
+                    placeholder="Professor…" data-filter-kind="professor">
+                <button class="btn btn-light" type="button" data-resetter="professor">
+                    <div class="bi bi-arrow-counterclockwise"></div>
+                </button>
+            </div>
+            <div class="card p-2">
+                <div class="filter-card overflow-y-scroll">
+                    {% for professor in professors %}
+                    <div class="form-check" data-kind="professor" data-value="{{professor.name}}">
+                        <input class="form-check-input" type="checkbox" name="professor" id="professor_{{professor.pk}}"
+                            value="{{professor.pk}}" data-reset="professor" data-query>
+                        <label class="form-check-label" for="professor_{{professor.pk}}">{{professor.name}}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </fieldset>
+        <fieldset id="locations" class="col col-3">
+            <legend class="h6">Locations</legend>
+            <div class="d-flex mb-2 gap-2">
+                <input class="form-control" type="text" name="locations_filter" id="locations_filter"
+                    placeholder="Location…" data-filter-kind="location">
+                <button class="btn btn-light" type="button" data-resetter="location">
+                    <div class="bi bi-arrow-counterclockwise"></div>
+                </button>
+            </div>
+            <div class="card p-2">
+                <div class="filter-card overflow-y-scroll">
+                    {% for room in rooms %}
+                    <div class="form-check" data-kind="location" data-value="{{room}}">
+                        <input class="form-check-input" type="checkbox" name="location" id="location_{{room.pk}}"
+                            value="{{room}}" data-one="{{building.pk}}" data-reset="location" data-query>
+                        <label class="form-check-label" for="location_{{room.pk}}">{{room.code}}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</section>
+<section class="container pt-5">
+    <div class="row g-4 h-100vh">
+        <div class="col col-6 h-100">
+            <div class="py-4 h-100">
+                <div class="h-100 mh-100" id="calendar"></div>
+            </div>
+        </div>
+        <div class="col col-6 h-100">
+            <div class="d-flex flex-column gap-4 py-4 h-100">
+                <div class="card">
+                    <div class="d-flex gap-2 p-2 justify-content-between">
+                        <button type="button" class="btn btn-light"><i class="bi bi-check-square me-2"></i>Select
+                            All</button>
+                        <a href="{% url 'create_section' %}?period={{section.uuid}}" class="btn btn-light"><i class="bi bi-plus-lg me-2"></i>Create</a>
+                    </div>
+                </div>
+                <div class="card overflow-y-scroll h-100 mh-100">
+                    <div class="d-flex flex-column">
+                        {% for section in sections %}
+                        <div class="d-flex gap-3 align-items-center px-3 py-2 border-top border-bottom {% if section.is_suggestion %}bg-body-tertiary{% endif %}"
+                            data-attribute-course_code="{{section.course.code}}"
+                            data-attribute-subject="{{section.course.subject.uuid}}"
+                            data-attribute-location="{{section.room}}" data-queried>
+                            <div class="d-flex flex-column align-items-center">
+                                <input class="form-check-input" type="checkbox" id="section_{{section.uuid}}">
+                            </div>
+                            <div class="row flex-grow-1">
+                                <label class="col-6" scope="row" for="section_{{section.uuid}}">
+                                    <span class="fw-bold">{{section.subject.code}} {{section.course.code}}</span>
+                                </label>
+                                <div class="col-6">{{section.time_display}}</div>
+                                <label class="col-6" for="section_{{section.uuid}}">
+                                    <small class="text-muted fw-normal">{{section.course.name}}</small>
+                                </label>
+                                <div class="col-6">
+                                    {% if section.room.capacity < section.capacity %} <span class="text-danger"><i
+                                            class="bi bi-people"></i>{{section.capacity}}</span>
+                                        {% else %}
+                                        <span class="text-primary"><i
+                                                class="bi bi-people"></i>{{section.capacity}}</span>
+                                        {% endif %}&mdash;<a
+                                            href="{{section.room.get_absolute_url}}">{{section.room.code}}</a>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column gap-1 align-items-center">
+                                {% if section.is_suggestion %}
+                                <a class="btn btn-text text-primary" href="{% url 'edit_section' section.uuid %}"><i
+                                        class="bi bi-pencil"></i></a>
+                                <form action="{% url 'delete_section' section.uuid %}" method="POST"
+                                    data-confirm="Are you sure you want to delete {{section}}?">
+                                    {% csrf_token %}
+                                    <button class="btn btn-text btn-sm text-danger"><i class="bi bi-trash"></i></button>
+                                </form>
+                                {% else %}
+                                <a class="btn btn-light" href="{% url 'edit_section' section.uuid %}"><i
+                                        class="bi bi-pencil"></i></a>
+                                <div class="d-flex gap-1">
+                                    <form action="{% url 'delete_section' section.uuid %}" method="POST"
+                                        data-confirm="Are you sure you want to delete {{section}}?">
+                                        {% csrf_token %}
+                                        <button class="btn btn-light text-danger btn-sm"><i
+                                                class="bi bi-x-lg"></i></button>
+                                    </form>
+                                    <form action="{% url 'delete_section' section.uuid %}" method="POST"
+                                        data-confirm="Are you sure you want to delete {{section}}?">
+                                        {% csrf_token %}
+                                        <button class="btn btn-light text-success btn-sm"><i
+                                                class="bi bi-check-lg"></i></button>
+                                    </form>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{{events|json_script:"events"}}
+<script>
+    const events = JSON.parse(document.getElementById("events").textContent)
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'timeGridWeek',
+            initialDate: '{{period.start|date:"c"}}',
+            headerToolbar: {
+                left: 'prev,next',
+                center: 'title',
+                right: 'timeGridWeek,timeGridDay'
+            },
+            events: events,
+        });
+        calendar.render();
+    });
+</script>
+{% endblock %}

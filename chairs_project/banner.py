@@ -1,11 +1,13 @@
 """Module for implementing Ellucian Banner API integration."""
 
 from collections.abc import Callable, Iterable
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from functools import wraps
+from http import HTTPStatus
 from logging import DEBUG, basicConfig, getLogger
 from threading import Thread
 from typing import Any, Self
+from uuid import UUID
 
 from django.conf import settings
 from requests import Session, post
@@ -14,9 +16,7 @@ from chairs_project.utils import DAYS_OF_WEEK_NAME, DaysOfWeek
 from courses_app.models import Course, Section
 from departments_app.models import Subject
 from locations_app.models import Building, Room
-from semesters_app.models import Semester
-
-from uuid import UUID
+from periods_app.models import Period
 
 ELLUCIAN_URL = "https://integrate.elluciancloud.com"
 
@@ -140,11 +140,26 @@ class BannerClient:
     def get_sections(self, **kwargs: Any) -> Iterable[dict[str, Any]]:
         yield from self.get_resource("section-schedule-information", **kwargs)
 
-    def get_semesters(self, **kwargs: Any) -> Iterable[dict[str, Any]]:
+    def get_periods(self, **kwargs: Any) -> Iterable[dict[str, Any]]:
         yield from self.get_resource("academic-periods", **kwargs)
 
     def get_courses(self, **kwargs: Any) -> Iterable[dict[str, Any]]:
         yield from self.get_resource("courses", **kwargs)
+
+    @_check_authentication
+    def update_course(self, *, uuid: str | UUID, name: str | None = None):
+        data = {}
+        if name is not None:
+            data["title"] = str(name)
+        assert data, "No changes specified"
+        response = self.session.get(f"{ELLUCIAN_URL}/api/courses/{uuid}").json()
+        data["subject"] = response["subject"]
+        data["credits"] = [{"minimum": response["credits"][0]["minimum"]}]
+        response = self.session.put(
+            f"{ELLUCIAN_URL}/api/courses/{uuid}",
+            json=data,
+        )
+        assert response.status_code == HTTPStatus.OK, response.text
 
 
 class BannerResources:
@@ -189,6 +204,9 @@ class BannerResources:
             for subject in self.client.get_subjects(**kwargs)
         )
 
+    def update_course(self, course: Course, name: str | None = None) -> None:
+        self.client.update_course(uuid=course.uuid, name=name)
+
     def get_courses(self, **kwargs: Any) -> Iterable[Course]:
         for course in self.client.get_courses(**kwargs):
             yield Course(
@@ -198,15 +216,15 @@ class BannerResources:
                 number=course["number"],
             )
 
-    def get_semesters(self, **kwargs: Any) -> Iterable[Semester]:
-        periods = self.client.get_semesters(**kwargs)
+    def get_periods(self, **kwargs: Any) -> Iterable[Period]:
+        periods = list(self.client.get_periods(**kwargs))
 
-        semesters = {
-            period["id"]: Semester(
+        periods_map = {
+            period["id"]: Period(
                 uuid=period["id"],
                 title=period["title"],
-                start = datetime.fromisoformat(period["startOn"]).date(),
-                end = datetime.fromisoformat(period["endOn"]).date(),
+                start=datetime.fromisoformat(period["startOn"]).date(),
+                end=datetime.fromisoformat(period["endOn"]).date(),
                 type=period["category"]["type"],
             )
             for period in periods
@@ -219,12 +237,11 @@ class BannerResources:
         for period in periods:
             parent_id_str = period["category"].get("parent", {}).get("id")
             if parent_id_str:
-                parent_id = UUID(parent_id_str)
-                child_id = UUID(period["id"])
-                semesters[child_id].parent = semesters.get(parent_id)
+                parent_id = parent_id_str
+                child_id = period["id"]
+                periods_map[child_id].parent = periods_map.get(parent_id)
 
-        yield from semesters.values()
-
+        yield from periods_map.values()
 
     def get_sections(self, **kwargs: Any) -> Iterable[Section]:
         for section in self.client.get_sections(**kwargs):
@@ -250,7 +267,7 @@ class BannerResources:
                     uuid=section["sectionsId"],
                     course=Course.objects.get(uuid=section["courseId"]),
                     room=room,
-                    semester=Semester.objects.get(uuid=section["sectionReportingAcademicPeriodId"]),
+                    period=Period.objects.get(uuid=section["sectionReportingAcademicPeriodId"]),
                     capacity=room.maximum_capacity,
                     days_of_week="".join(days_of_week),
                     start_time=start_time,
@@ -279,21 +296,3 @@ def create_task(
     thread = Thread(target=accumulate_result)
     thread.start()
     return thread
-
-
-def populate():
-    assert settings.DEBUG
-    br = BannerResources()
-    Building.objects.all().delete()
-    Building.objects.bulk_create(br.get_buildings())
-    Subject.objects.all().delete()
-    Subject.objects.bulk_create(br.get_subjects())
-    Room.objects.all().delete()
-    Room.objects.bulk_create(br.get_rooms())
-    Course.objects.all().delete()
-    Course.objects.bulk_create(br.get_courses())
-    Semester.objects.all().delete()
-    Semester.objects.bulk_create(br.get_semesters())
-    Section.objects.all().delete()
-    Section.objects.bulk_create(br.get_sections())
-    

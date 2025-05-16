@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('semesters_app', '0002_alter_semester_unique_together'),
+        ('periods_app', '0002_alter_period_unique_together'),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='semester',
+            name='period',
             options={'get_latest_by': ('-year', '-term'), 'ordering': ('-year', '-term')},
         ),
     ]

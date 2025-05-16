@@ -1,4 +1,21 @@
 {% extends 'chairs_app/base.html' %}
 {% block title %}Home{% endblock %}
 {% block body %}
+<section class="container py-5 text-center">
+    <div class="container py-3">
+        <div class="display-1 mx-auto mb-1">
+            <i class="bi bi-people"></i>
+        </div>
+        <h1 class="display-5 mb-4">Welcome to <span class="text-primary">Chairs.</span></h1>
+        <div class="col-lg-6 mx-auto">
+            <p class="lead mb-4"><span class="text-primary">Chairs</span> is a new class scheduling system for
+                Taylor University, designed for use by both the registrar and the department chairs of academic
+                departments.</p>
+            <div class="d-flex gap-2 justify-content-center">
+                <a href="{% url 'list_periods' %}" class="btn btn-primary btn-lg px-3">Plan a Period</a>
+                <a href="{% url 'list_articles' %}" class="btn btn-outline-secondary btn-lg px-3">Get Help</a>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

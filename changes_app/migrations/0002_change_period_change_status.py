@@ -8,14 +8,14 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('changes_app', '0001_initial'),
-        ('semesters_app', '0003_alter_semester_options'),
+        ('periods_app', '0003_alter_period_options'),
     ]
 
     operations = [
         migrations.AddField(
             model_name='change',
-            name='semester',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='changes', to='semesters_app.semester'),
+            name='period',
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='changes', to='periods_app.period'),
         ),
         migrations.AddField(
             model_name='change',

@@ -1,3 +1,5 @@
+from http import HTTPMethod
+
 from django.contrib.messages import success
 from django.core.validators import validate_slug
 from django.http.request import HttpRequest
@@ -20,9 +22,9 @@ def list_articles(request: HttpRequest) -> HttpResponse:
     )
 
 
-@require_http_methods(["GET", "POST"])
+@require_http_methods([HTTPMethod.GET, HTTPMethod.POST])
 def create_article(request: HttpRequest) -> HttpResponse:
-    if request.method == "POST":
+    if request.method == HTTPMethod.POST:
         validate_slug(request.POST["slug"])
         article = Article.objects.create(
             title=request.POST["title"],
@@ -47,10 +49,10 @@ def view_article(request: HttpRequest, slug: str) -> HttpResponse:
     )
 
 
-@require_http_methods(["GET", "POST"])
+@require_http_methods([HTTPMethod.GET, HTTPMethod.POST])
 def edit_article(request: HttpRequest, slug: str) -> HttpResponse:
     article = get_object_or_404(Article, slug=slug)
-    if request.method == "POST":
+    if request.method == HTTPMethod.POST:
         article.title = request.POST["title"]
         article.slug = request.POST["slug"]
         article.description = request.POST["description"] or article.description

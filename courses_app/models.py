@@ -10,7 +10,7 @@ from django.db.models.fields.related import ForeignKey
 from chairs_project.utils import DAYS_OF_WEEK_NAME, DaysOfWeek, format_time
 from departments_app.models import Subject
 from locations_app.models import Room
-from semesters_app.models import Semester
+from periods_app.models import Period
 
 
 class Course(Model):
@@ -33,7 +33,7 @@ class Course(Model):
 class Section(Model):
     uuid = UUIDField(primary_key=True, default=uuid4)
     course = ForeignKey(Course, on_delete=CASCADE, related_name="sections")
-    semester = ForeignKey(Semester, on_delete=CASCADE, related_name="sections")
+    period = ForeignKey(Period, on_delete=CASCADE, related_name="sections")
     room = ForeignKey(Room, on_delete=SET_NULL, related_name="sections", null=True)
     capacity = IntegerField()
 
@@ -44,7 +44,7 @@ class Section(Model):
     is_suggestion = BooleanField(default=False)
 
     def __str__(self) -> str:
-        return f"{self.course.name}, offered in {self.semester}"
+        return f"{self.course.name}, offered in {self.period}"
 
     @property
     def time_display(self) -> str:

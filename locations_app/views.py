@@ -1,5 +1,7 @@
 # ruff: noqa: D103
 
+from http import HTTPMethod
+
 from django.contrib.messages import success
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -20,9 +22,9 @@ def list_buildings(request: HttpRequest) -> HttpResponse:
     )
 
 
-@require_http_methods(["GET", "POST"])
+@require_http_methods([HTTPMethod.GET, HTTPMethod.POST])
 def create_building(request: HttpRequest) -> HttpResponse:
-    if request.method == "POST":
+    if request.method == HTTPMethod.POST:
         building = Building.objects.create(
             identifier=request.POST["identifier"],
             name=request.POST["name"],
@@ -40,14 +42,15 @@ def view_building(request: HttpRequest, uuid: str) -> HttpResponse:
         f"{__package__}/{view_building.__name__}.html",
         {
             "building": building,
+            "classes": building.classes.all(),
         },
     )
 
 
-@require_http_methods(["GET", "POST"])
+@require_http_methods([HTTPMethod.GET, HTTPMethod.POST])
 def edit_building(request: HttpRequest, uuid: str) -> HttpResponse:
     building = get_object_or_404(Building, uuid=uuid)
-    if request.method == "POST":
+    if request.method == HTTPMethod.POST:
         building.name = request.POST["name"]
         building.code = request.POST["identifier"]
         building.available = request.POST.get("available", "off") == "on"
@@ -107,10 +110,10 @@ def list_rooms(request: HttpRequest) -> HttpResponse:
     )
 
 
-@require_http_methods(["GET", "POST"])
+@require_http_methods([HTTPMethod.GET, HTTPMethod.POST])
 def create_room(request: HttpRequest, building_uuid: str) -> HttpResponse:
     building = get_object_or_404(Building, uuid=building_uuid)
-    if request.method == "POST":
+    if request.method == HTTPMethod.POST:
         room = Room.objects.create(
             building=building,
             name=request.POST.get("name", "") or None,
@@ -141,10 +144,10 @@ def view_room(request: HttpRequest, uuid: str) -> HttpResponse:
     )
 
 
-@require_http_methods(["GET", "POST"])
+@require_http_methods([HTTPMethod.GET, HTTPMethod.POST])
 def edit_room(request: HttpRequest, uuid: str) -> HttpResponse:
     room = get_object_or_404(Room, uuid=uuid)
-    if request.method == "POST":
+    if request.method == HTTPMethod.POST:
         room.name = request.POST.get("name", "") or None
         room.number = request.POST.get("code", "") or None
         room.available = request.POST.get("available", "off") == "on"

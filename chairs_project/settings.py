@@ -42,6 +42,7 @@ if DEBUG:
 
 INSTALLED_APPS = [
     "daphne",
+    "channels",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
@@ -124,3 +125,10 @@ MESSAGE_TAGS = {
 }
 
 BANNER_API_KEY = environ["BANNER_API_KEY"]
+
+if DEBUG:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer",
+        },
+    }

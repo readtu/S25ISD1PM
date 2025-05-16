@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('semesters_app', '0003_alter_semester_options'),
+        ('periods_app', '0003_alter_period_options'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='semester',
+            model_name='period',
             name='end',
             field=models.DateField(default='1970-01-01'),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='semester',
+            model_name='period',
             name='start',
             field=models.DateField(default='1970-01-01'),
             preserve_default=False,

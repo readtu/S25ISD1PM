@@ -10,7 +10,7 @@ from changes_app.models import Change, ChangeStatus
 
 @require_GET
 def list_changes(request: HttpRequest) -> HttpResponse:
-    group_by_semester = request.GET.get("group_by", "none") == "semester"
+    group_by_period = request.GET.get("group_by", "none") == "period"
     status = request.GET.get("status", "any")
     changes = Change.objects.all()
     if status in ChangeStatus:
@@ -19,7 +19,7 @@ def list_changes(request: HttpRequest) -> HttpResponse:
         request,
         f"{__package__}/{list_changes.__name__}.html",
         {
-            "group_by_semester": group_by_semester,
+            "group_by_period": group_by_period,
             "status": status,
             "changes": changes,
         },

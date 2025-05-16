@@ -1,0 +1,31 @@
+{% extends 'chairs_app/base.html' %}
+{% block title %}Create Year{% endblock %}
+{% block body %}
+<section class="container pt-5 pb-0">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'list_periods' %}">Periods</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Create Year</li>
+        </ol>
+    </nav>
+    <h1 class="mb-0">Create Academic Year</h1>
+</section>
+<section class="container py-5">
+    <form method="POST">
+        <div class="row mb-3">
+            <div class="col-6">
+                <label for="start" class="form-label">Start</label>
+                <input class="form-control" type="date" name="start" id="start" placeholder="Start…" required>
+            </div>
+            <div class="col-6">
+                <label for="end" class="form-label">End</label>
+                <input class="form-control" type="date" name="end" id="end" placeholder="End…" required>
+            </div>
+        </div>
+        <div class="mt-4">
+            {% csrf_token %}
+            <input type="submit" value="Create" class="btn btn-primary">
+        </div>
+    </form>
+</section>
+{% endblock %}

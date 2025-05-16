@@ -1,0 +1,64 @@
+{% extends 'chairs_app/base.html' %}
+{% block title %}Edit {{section}}{% endblock %}
+{% block body %}
+<section class="container pt-5 pb-0">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'list_periods' %}">Periods</a></li>
+            <li class="breadcrumb-item"><a
+                    href="{% url 'view_period' section.period.uuid %}">{{section.period}}</a></li>
+            <li class="breadcrumb-item">{{section.course}}</li>
+            <li class="breadcrumb-item active" aria-current="page">Edit</li>
+        </ol>
+    </nav>
+    <h1 class="mb-0">Edit {{section.course}}</h1>
+</section>
+<section class="container py-5">
+    <form method="POST">
+        <div class="row mb-3">
+            <div class="col col-6">
+                <label for="start_time" class="form-label">Start Time</label>
+                <input type="time" class="form-control" id="start_time" name="start_time" placeholder="Start…"
+                    value="{{section.start_time|date:'c'}}" required>
+            </div>
+            <div class="col col-6">
+                <label for="end_time" class="form-label">End Time</label>
+                <input type="time" class="form-control" id="end_time" name="end_time" placeholder="End…"
+                    value="{{section.end_time|date:'c'}}" required>
+            </div>
+        </div>
+        <div class="mb-3">
+            <div class="d-flex gap-4">
+                {% for number, name in days_of_week %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="day_of_week_{{number}}"
+                        id="day_of_week_{{number}}" {% if number in section.days_of_week %} checked {% endif %}>
+                    <label class="form-check-label" for="day_of_week_{{number}}">{{name.name|title}}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="room">Room</label>
+            <select class="form-select" name="room" id="room">
+                {% for building in buildings %}
+                <optgroup label="{{building}}">
+                    {% for room in building.rooms.all %}
+                    <option value="{{room.uuid}}">{{room}}</option>
+                    {% endfor %}
+                </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="capacity" class="form-label">Capacity</label>
+            <input type="number" class="form-control" id="capacity" name="capacity" placeholder="Capacity…"
+                value="{{section.capacity}}" required>
+        </div>
+        <div class="mt-4">
+            {% csrf_token %}
+            <input type="submit" value="Save" class="btn btn-primary">
+        </div>
+    </form>
+</section>
+{% endblock %}

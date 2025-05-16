@@ -1,0 +1,41 @@
+{% extends 'chairs_app/base.html' %}
+{% block title %}Create Subterm{% endblock %}
+{% block body %}
+<section class="container pt-5 pb-0">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'list_periods' %}">Periods</a></li>
+            <li class="breadcrumb-item">{{year}}</li>
+            <li class="breadcrumb-item">{{term}}</li>
+            <li class="breadcrumb-item active" aria-current="page">Create Subterm</li>
+        </ol>
+    </nav>
+    <h1 class="mb-0">Create Subterm</h1>
+</section>
+<section class="container py-5">
+    <form method="POST">
+        <div class="row mb-3">
+            <div class="col-6">
+                <label for="start" class="form-label">Start</label>
+                <input class="form-control" type="date" name="start" id="start" placeholder="Start…"
+                    value="{{year.start|date:'c'}}" required>
+            </div>
+            <div class="col-6">
+                <label for="end" class="form-label">End</label>
+                <input class="form-control" type="date" name="end" id="end" placeholder="End…"
+                    value="{{year.end|date:'c'}}" required>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <div class="input-group">
+                <input class="form-control" type="text" name="title" id="title" placeholder="Title…" required>
+            </div>
+        </div>
+        <div class="mt-4">
+            {% csrf_token %}
+            <input type="submit" value="Create" class="btn btn-primary">
+        </div>
+    </form>
+</section>
+{% endblock %}
