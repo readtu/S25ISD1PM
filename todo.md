@@ -37,3 +37,8 @@
 
 - [ ] I want to be able to add or remove Department Chairs, so that the correct user creates, updates, and removes course details from the course schedule plan.
 - [ ] I want to be able to reset a user password, so that security of the system can be maintained.
+
+- Add support for detecting current semester
+- Make sure inverse actions cancel each other out.
+- Make academic periods without parents years
+- Add sections

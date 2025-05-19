@@ -9,17 +9,17 @@ urlpatterns = [
         name=views.list_courses.__name__,
     ),
     path(
-        "section/create",
+        "sections/create",
         views.create_section,
         name=views.create_section.__name__,
     ),
     path(
-        "section/<uuid:uuid>/edit",
+        "sections/<uuid:uuid>/edit",
         views.edit_section,
         name=views.edit_section.__name__,
     ),
     path(
-        "section/<uuid:uuid>/delete",
+        "sections/<uuid:uuid>/delete",
         views.delete_section,
         name=views.delete_section.__name__,
     ),

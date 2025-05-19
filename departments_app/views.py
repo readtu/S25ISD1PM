@@ -88,7 +88,7 @@ def edit_department(request: HttpRequest, uuid: str) -> HttpResponse:
     department = get_object_or_404(Department, uuid=uuid)
     if request.method == HTTPMethod.POST:
         department.name = request.POST["name"]
-        department.school = School.objects.get(uuid=request.POST["name"])
+        department.school = School.objects.get(uuid=request.POST["school"])
         department.save()
         success(request, f"Saved changes to {department}.")
         return redirect(list_departments.__name__)

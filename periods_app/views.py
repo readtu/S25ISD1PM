@@ -8,6 +8,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
+from changes_app.models import Change, ChangeStatus, ChangeType
 from courses_app.models import Section
 from periods_app.models import Period, PeriodTypes, TermNames
 from users_app.models import User, UserRole
@@ -172,3 +173,20 @@ def delete_period(request: HttpRequest, uuid: str) -> HttpResponse:
     period.delete()
     success(request, f"Deleted {name}.")
     return redirect(list_periods.__name__)
+
+
+@require_POST
+def create_changes(request: HttpRequest, uuid: str) -> HttpResponse:
+    period = get_object_or_404(Period, uuid=uuid)
+    for section in period.sections.all():
+        if section.is_suggestion:
+            continue
+        if section.changes.filter(status__ne=ChangeStatus.REJECTED).exists():
+            continue
+        Change.objects.create(
+            section=section,
+            type=ChangeType.CREATE,
+            status=ChangeStatus.PENDING,
+        )
+    success(request, f"Created changes for {period}.")
+    return redirect("list_changes")

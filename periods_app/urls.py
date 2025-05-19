@@ -24,9 +24,14 @@ urlpatterns = [
         name=views.create_subterm.__name__,
     ),
     path(
-        "periods/years/<uuid:uuid>",
+        "periods/<uuid:uuid>",
         views.view_subterm,
         name=views.view_subterm.__name__,
+    ),
+    path(
+        "periods/<uuid:uuid>/create_changes",
+        views.create_changes,
+        name=views.create_changes.__name__,
     ),
     path(
         "periods/<uuid:uuid>/delete",

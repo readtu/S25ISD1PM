@@ -19,6 +19,12 @@
                 {% csrf_token %}
                 <button type="submit" class="btn btn-light text-danger"><i class="bi bi-trash me-2"></i>Delete</button>
             </form>
+            <form action="{% url 'create_changes' period.uuid %}" method="POST"
+                data-confirm="Are you sure you want to publish the changes for {{period}}?">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-light text-success"><i
+                        class="bi bi-upload me-2"></i>Publish</button>
+            </form>
         </div>
     </div>
     <form class="row overflow-x-scroll">
@@ -122,63 +128,78 @@
                     <div class="d-flex gap-2 p-2 justify-content-between">
                         <button type="button" class="btn btn-light"><i class="bi bi-check-square me-2"></i>Select
                             All</button>
-                        <a href="{% url 'create_section' %}?period={{section.uuid}}" class="btn btn-light"><i class="bi bi-plus-lg me-2"></i>Create</a>
+                        <a href="{% url 'create_section' %}?period={{section.uuid}}" class="btn btn-light"><i
+                                class="bi bi-plus-lg me-2"></i>Create</a>
                     </div>
                 </div>
                 <div class="card overflow-y-scroll h-100 mh-100">
                     <div class="d-flex flex-column">
                         {% for section in sections %}
-                        <div class="d-flex gap-3 align-items-center px-3 py-2 border-top border-bottom {% if section.is_suggestion %}bg-body-tertiary{% endif %}"
-                            data-attribute-course_code="{{section.course.code}}"
+                        <div class="py-2 border-top border-bottom" data-attribute-course_code="{{section.course.code}}"
                             data-attribute-subject="{{section.course.subject.uuid}}"
                             data-attribute-location="{{section.room}}" data-queried>
-                            <div class="d-flex flex-column align-items-center">
-                                <input class="form-check-input" type="checkbox" id="section_{{section.uuid}}">
-                            </div>
-                            <div class="row flex-grow-1">
-                                <label class="col-6" scope="row" for="section_{{section.uuid}}">
-                                    <span class="fw-bold">{{section.subject.code}} {{section.course.code}}</span>
-                                </label>
-                                <div class="col-6">{{section.time_display}}</div>
-                                <label class="col-6" for="section_{{section.uuid}}">
-                                    <small class="text-muted fw-normal">{{section.course.name}}</small>
-                                </label>
-                                <div class="col-6">
-                                    {% if section.room.capacity < section.capacity %} <span class="text-danger"><i
-                                            class="bi bi-people"></i>{{section.capacity}}</span>
-                                        {% else %}
-                                        <span class="text-primary"><i
+                            <div
+                                class="d-flex gap-3 align-items-center px-3 {% if section.is_suggestion %}bg-body-tertiary{% endif %}">
+                                <div class="d-flex flex-column align-items-center">
+                                    <input class="form-check-input" type="checkbox" id="section_{{section.uuid}}">
+                                </div>
+                                <div class="row flex-grow-1">
+                                    <label class="col-6" scope="row" for="section_{{section.uuid}}">
+                                        <span class="fw-bold">{{section.subject.code}} {{section.course.code}}</span>
+                                    </label>
+                                    <div class="col-6">{{section.time_display}}</div>
+                                    <label class="col-6" for="section_{{section.uuid}}">
+                                        <small class="text-muted fw-normal">{{section.course.name}}</small>
+                                    </label>
+                                    <div class="col-6">
+                                        {% if section.room.capacity < section.capacity %} <span class="text-danger"><i
                                                 class="bi bi-people"></i>{{section.capacity}}</span>
-                                        {% endif %}&mdash;<a
-                                            href="{{section.room.get_absolute_url}}">{{section.room.code}}</a>
+                                            {% else %}
+                                            <span class="text-primary"><i
+                                                    class="bi bi-people"></i>{{section.capacity}}</span>
+                                            {% endif %}&mdash;<a
+                                                href="{{section.room.get_absolute_url}}">{{section.room.code}}</a>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column gap-1 align-items-center">
+                                    {% if section.is_suggestion %}
+                                    <a class="btn btn-light" href="{% url 'edit_section' section.uuid %}"><i
+                                            class="bi bi-pencil"></i></a>
+                                    <div class="d-flex gap-1">
+                                        <form action="{% url 'delete_section' section.uuid %}" method="POST"
+                                            data-confirm="Are you sure you want to delete {{section}}?">
+                                            {% csrf_token %}
+                                            <button class="btn btn-light text-danger btn-sm"><i
+                                                    class="bi bi-x-lg"></i></button>
+                                        </form>
+                                        <form action="{% url 'delete_section' section.uuid %}" method="POST"
+                                            data-confirm="Are you sure you want to delete {{section}}?">
+                                            {% csrf_token %}
+                                            <button class="btn btn-light text-success btn-sm"><i
+                                                    class="bi bi-check-lg"></i></button>
+                                        </form>
+                                    </div>
+                                    {% else %}
+                                    <a class="btn btn-text text-primary" href="{% url 'edit_section' section.uuid %}"><i
+                                            class="bi bi-pencil"></i></a>
+                                    <form action="{% url 'delete_section' section.uuid %}" method="POST"
+                                        data-confirm="Are you sure you want to delete {{section}}?">
+                                        {% csrf_token %}
+                                        <button class="btn btn-text btn-sm text-danger"><i
+                                                class="bi bi-trash"></i></button>
+                                    </form>
+                                    {% endif %}
                                 </div>
                             </div>
-                            <div class="d-flex flex-column gap-1 align-items-center">
-                                {% if section.is_suggestion %}
-                                <a class="btn btn-text text-primary" href="{% url 'edit_section' section.uuid %}"><i
-                                        class="bi bi-pencil"></i></a>
-                                <form action="{% url 'delete_section' section.uuid %}" method="POST"
-                                    data-confirm="Are you sure you want to delete {{section}}?">
-                                    {% csrf_token %}
-                                    <button class="btn btn-text btn-sm text-danger"><i class="bi bi-trash"></i></button>
-                                </form>
-                                {% else %}
-                                <a class="btn btn-light" href="{% url 'edit_section' section.uuid %}"><i
-                                        class="bi bi-pencil"></i></a>
-                                <div class="d-flex gap-1">
-                                    <form action="{% url 'delete_section' section.uuid %}" method="POST"
-                                        data-confirm="Are you sure you want to delete {{section}}?">
-                                        {% csrf_token %}
-                                        <button class="btn btn-light text-danger btn-sm"><i
-                                                class="bi bi-x-lg"></i></button>
-                                    </form>
-                                    <form action="{% url 'delete_section' section.uuid %}" method="POST"
-                                        data-confirm="Are you sure you want to delete {{section}}?">
-                                        {% csrf_token %}
-                                        <button class="btn btn-light text-success btn-sm"><i
-                                                class="bi bi-check-lg"></i></button>
-                                    </form>
-                                </div>
+                            <div class="px-3">
+                                {% if section.changes.all %}
+                                {% with status=section.changes.last.status %}
+                                {% if status == "pending" %}
+                                <div class="alert alert-warning mt-2 p-2">This section is pending review.</div>
+                                {% elif status == "accepted" %}
+                                <div class="alert alert-success mt-2 p-2">This section was published to Banner.</div>
+                                {% endif %}
+                                {% endwith %}
                                 {% endif %}
                             </div>
                         </div>

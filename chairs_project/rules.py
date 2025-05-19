@@ -1,16 +1,10 @@
 # ruff: noqa: ANN201, ANN001
-# TODO
 
-from enum import Enum, auto
 from typing import override
 
-from courses_app.models import Course
+from courses_app.models import Section
 
-
-class RuleSeverity(Enum):
-    PREVENT = auto()  # Prevent department chairs or registrars from making this change.
-    UNUSUAL = auto()  # Warn department chairs and display to registrar as unusual.
-    DISCOURAGE = auto()  # Warn department chairs, but ignore it to the registrar.
+RULES = list[type["Rule"]]()
 
 
 class Rule:
@@ -21,9 +15,11 @@ class Rule:
     (if `is_department_chair_)
     """
 
-    severity: RuleSeverity
+    def __init_subclass__(cls) -> None:
+        RULES.append(cls)
 
-    def check_class(self, klass: Course) -> None:
+    @classmethod
+    def check_section(cls, section: Section) -> None:
         """
         Check that the given class meets the requirements for this rule.
 
@@ -38,11 +34,9 @@ class RoomConflictRule(Rule):
     A possible exception could be if a course is cross-listed.
     """
 
-    is_department_chair_error = True
-    is_registrar_warning = True
-
     @override
-    def check_class(self, klass): ...
+    @classmethod
+    def check_section(cls, section): ...
 
 
 class ProfessorConflictRule(Rule):
@@ -52,34 +46,41 @@ class ProfessorConflictRule(Rule):
     A possible exception would be if a course is cross-listed.
     """
 
-    is_department_chair_error = True
-    is_registrar_warning = True
-
     @override
-    def check_class(self, klass): ...
+    @classmethod
+    def check_section(cls, section): ...
 
 
 class ChapelConflictRule(Rule):
     """A class time cannot overlap with chapel."""
 
-    is_department_chair_error = True
-    is_registrar_error = True
-
     @override
-    def check_class(self, klass): ...
+    @classmethod
+    def check_section(cls, section):
+        this_start = section.start_time.hour + section.start_time.minute / 60
+        if set(section.days_of_week) & set("024") and 10 <= this_start < 11:
+            raise AssertionError("Section overlaps with chapel.")
 
 
 class CommunityHoursRule(Rule):
     """A class time should not overlap the campus-wide "community hours"."""
 
-    is_department_chair_warning = True
-    is_registrar_warning = True
-
     COMMUNITY_HOURS_MWF = ((16, 19),)
     COMMUNITY_HOURS_TR = ((15.5, 18),)
 
     @override
-    def check_class(self, klass): ...
+    @classmethod
+    def check_section(cls, section):
+        this_start = section.start_time.hour + section.start_time.minute / 60
+        this_end = section.end_time.hour + section.end_time.minute / 60
+        if set(section.days_of_week) & set("024"):
+            for block_start, block_end in cls.COMMUNITY_HOURS_MWF:
+                if block_start <= this_start <= block_end or block_end <= this_end <= block_end:
+                    raise AssertionError("Section overlaps with community hours.")
+        if set(section.days_of_week) & set("13"):
+            for block_start, block_end in cls.COMMUNITY_HOURS_TR:
+                if block_start <= this_start <= block_end or block_end <= this_end <= block_end:
+                    raise AssertionError("Section overlaps with community hours.")
 
 
 class StandardStartTimesRule(Rule):
@@ -89,4 +90,10 @@ class StandardStartTimesRule(Rule):
     TIMES_TR = frozenset((8, 9.5, 11, 12.5, 14))
 
     @override
-    def check_class(self, klass): ...
+    @classmethod
+    def check_section(cls, section):
+        this_start = section.start_time.hour + section.start_time.minute / 60
+        if set(section.days_of_week) & set("024") and this_start not in cls.TIMES_MWF:
+            raise AssertionError("Section does not start at standard time.")
+        if set(section.days_of_week) & set("13") and this_start not in cls.TIMES_TR:
+            raise AssertionError("Section does not start at standard time.")

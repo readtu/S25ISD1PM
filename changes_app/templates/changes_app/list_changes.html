@@ -22,23 +22,23 @@
         <fieldset>
             <legend class="h6">Filter by status</legend>
             <div class="form-check">
-                <input class="form-check-input" type="radio" name="status" id="status__any" value="any"
-                    data-refresh {%if status == "any"%} checked {%endif%}>
+                <input class="form-check-input" type="radio" name="status" id="status__any" value="any" data-refresh
+                    {%if status == 'any' %} checked {%endif%}>
                 <label class="form-check-label" for="status__any">Any</label>
             </div>
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="status" id="status__pending" value="pending"
-                    data-refresh {%if status == "pending"%} checked {%endif%}>
+                    data-refresh {%if status == 'pending' %} checked {%endif%}>
                 <label class="form-check-label" for="status__pending">Pending</label>
             </div>
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="status" id="status__rejected" value="rejected"
-                    data-refresh {%if status == "rejected"%} checked {%endif%}>
+                    data-refresh {%if status == 'rejected' %} checked {%endif%}>
                 <label class="form-check-label" for="status__rejected">Rejected</label>
             </div>
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="status" id="status__accepted" value="accepted"
-                    data-refresh {%if status == "accepted"%} checked {%endif%}>
+                    data-refresh {%if status == 'accepted' %} checked {%endif%}>
                 <label class="form-check-label" for="status__accepted">Accepted</label>
             </div>
         </fieldset>
@@ -46,11 +46,64 @@
 </section>
 <section class="container py-5">
     {% if changes %}
-    {% for change in changes %}
-    <div class="card">
-        <div class="card-body">{{change}}</div>
+    <div class="row row-cols-1 g-4">
+        <div class="card p-3">
+            <div class="row">
+                <div class="col-4">
+                    <div class="small text-muted">COURSE</div>
+                </div>
+                <div class="col-4">
+                    <div class="small text-muted">TIMES</div>
+                </div>
+                <div class="col-4">
+                    <div class="small text-muted">ROOM</div>
+                </div>
+            </div>
+        </div>
+        {% for change in changes %}
+        {% if status == "any" or change.status == status %}
+        <div class="card p-3">
+            {% if change.type == "create" %}
+            <div class="d-flex gap-4">
+                <div class="">
+                    <input class="form-check-input" type="checkbox" id="section_{{section.uuid}}">
+                </div>
+                <div class="row mb-4 flex-grow-1">
+                    <div class="col-4">
+                        <div class="h4 mb-1">{{change.section.course.code}}</div>
+                        <div class="text-muted">{{change.section.course.name}}</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-muted mb-1">
+                            <a href="{{change.section.period.get_absolute_url}}">
+                                {{change.section.period.parent}} / {{change.section.period}}</a>
+                        </div>
+                        <div>{{change.section.time_display}}</div>
+                    </div>
+                    <div class="col-4">
+                        <div>
+                            <a href="{{change.section.room.get_absolute_url}}">{{change.section.room}}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end gap-3">
+                {% if change.status == "pending" %}
+                <form action="{% url 'accept_change' change.uuid %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-lg me-2"></i> Accept & Push
+                    </button>
+                </form>
+                {% else %}
+                <button class="btn btn-light" disabled>{{change.get_status_display}}</button>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% endfor %}
     </div>
-    {% endfor %}
     {% else %}
     <div class="alert alert-info">No changes are available.</div>
     {% endif %}

@@ -1,15 +1,19 @@
+import time
 from http import HTTPMethod
 from typing import Any
 
-from django.contrib.messages import success
+from django.contrib.messages import success, warning
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
+from chairs_project.rules import RULES
 from chairs_project.utils import DAYS_OF_WEEK_NAME
 from courses_app.models import Course, Section
-from locations_app.models import Building
+from departments_app.models import Subject
+from locations_app.models import Building, Room
+from periods_app.models import Period, PeriodTypes
 
 
 @require_GET
@@ -52,10 +56,65 @@ def list_courses(request: HttpRequest) -> HttpResponse:
 
 @require_http_methods([HTTPMethod.GET, HTTPMethod.POST])
 def create_section(request: HttpRequest) -> HttpResponse:
+    subjects = dict(
+        filter(
+            lambda item: item[1],
+            {
+                subject: dict(
+                    sorted(
+                        {
+                            (course.code, course.name): course for course in subject.courses.all()
+                        }.items(),
+                    ),
+                )
+                for subject in Subject.objects.all()
+            }.items(),
+        ),
+    )
+    years = {
+        year: [
+            (term, subterm)
+            for term in year.sub_periods.all().order_by("-start")
+            for subterm in term.sub_periods.all().order_by("-start")
+        ]
+        for year in Period.objects.filter(type=PeriodTypes.YEAR).order_by("-start")
+    }
     if request.method == HTTPMethod.POST:
-        section = Section.objects.create(...)
-        return redirect(section.period)
-    return render(request, f"{__package__}/{create_section.__name__}.html", {})
+        period = Period.objects.get(uuid=request.POST["period"])
+        course = Course.objects.get(uuid=request.POST["course"])
+        room = Room.objects.get(uuid=request.POST["room"])
+        days_of_week = "".join(key[-1] for key in request.POST if key.startswith("day_of_week_"))
+        section = Section(
+            period=period,
+            course=course,
+            room=room,
+            capacity=request.POST["capacity"],
+            start_time=request.POST["start_time"],
+            end_time=request.POST["end_time"],
+            days_of_week=days_of_week,
+            is_suggestion=False,
+        )
+        section.full_clean()
+        for Rule in RULES:
+            try:
+                Rule.check_section(section)
+            except AssertionError as e:
+                warning(request, str(e) + "")
+                break
+        else:
+            section.save()
+            success(request, f"Created {section}.")
+            return redirect(period)
+    return render(
+        request,
+        f"{__package__}/{create_section.__name__}.html",
+        {
+            "buildings": Building.objects.all(),
+            "subjects": subjects,
+            "years": years,
+            "days_of_week": enumerate(DAYS_OF_WEEK_NAME),
+        },
+    )
 
 
 @require_http_methods([HTTPMethod.GET, HTTPMethod.POST])
@@ -65,9 +124,17 @@ def edit_section(request: HttpRequest, uuid: str) -> HttpResponse:
         section.capacity = int(request.POST["capacity"])
         section.start_time = request.POST["start_time"]
         section.end_time = request.POST["end_time"]
-        success(request, f"Saved changes to {section}.")
-        section.save()
-        return redirect(section.period)
+        section.full_clean()
+        for Rule in RULES:
+            try:
+                Rule.check_section(section)
+            except AssertionError as e:
+                warning(request, str(e) + "")
+                break
+        else:
+            section.save()
+            success(request, f"Saved changes to {success}.")
+            return redirect(section.period)
     return render(
         request,
         f"{__package__}/{edit_section.__name__}.html",

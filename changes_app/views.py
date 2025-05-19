@@ -30,9 +30,10 @@ def list_changes(request: HttpRequest) -> HttpResponse:
 def accept_change(request: HttpRequest, uuid: str) -> HttpResponse:
     change = get_object_or_404(Change, uuid=uuid)
     # TODO: accept the change
+    string = str(change)
     change.status = ChangeStatus.ACCEPTED
     change.save()
-    success(request, f"Accepted {change}.")
+    success(request, f"Accepted {string}.")
     return redirect("list_changes")
 
 
@@ -40,7 +41,8 @@ def accept_change(request: HttpRequest, uuid: str) -> HttpResponse:
 def reject_change(request: HttpRequest, uuid: str) -> HttpResponse:
     change = get_object_or_404(Change, uuid=uuid)
     # TODO: reject the change
+    string = str(change)
     change.status = ChangeStatus.REJECTED
     change.save()
-    success(request, f"Rejected {change}.")
+    success(request, f"Rejected {string}.")
     return redirect("list_changes")
