@@ -181,7 +181,7 @@ def create_changes(request: HttpRequest, uuid: str) -> HttpResponse:
     for section in period.sections.all():
         if section.is_suggestion:
             continue
-        if section.changes.filter(status__ne=ChangeStatus.REJECTED).exists():
+        if section.changes.exclude(status=ChangeStatus.REJECTED).exists():
             continue
         Change.objects.create(
             section=section,
