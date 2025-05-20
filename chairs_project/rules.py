@@ -1,3 +1,5 @@
+"""Rules for auditing classes and class conflicts."""
+
 # ruff: noqa: ANN201, ANN001
 
 from typing import override
@@ -8,12 +10,7 @@ RULES = list[type["Rule"]]()
 
 
 class Rule:
-    """
-    Something to be checked whenever class creation or edits are performed.
-
-    These are designed to either show a warning to the department chair making the edit
-    (if `is_department_chair_)
-    """
+    """Something to be checked whenever class creation or edits are performed."""
 
     def __init_subclass__(cls) -> None:
         RULES.append(cls)

@@ -30,7 +30,7 @@ class BannerClient:
     last_authenticated: datetime | None = None
     authentication_expires: timedelta = timedelta(minutes=1)
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize an Ellucian Banner client."""
         self.session = Session()
         self.logger = getLogger("urllib3")
@@ -40,6 +40,11 @@ class BannerClient:
             self.logger.setLevel(DEBUG)
 
     def authenticate(self) -> None:
+        """
+        Authenticate into Banner.
+
+        Stores the authentication into the HTTP Headers for future requests.
+        """
         response = post(
             f"{ELLUCIAN_URL}/auth",
             headers={
@@ -51,6 +56,7 @@ class BannerClient:
         self.last_authenticated = datetime.now(tz=UTC)
 
     def smart_authenticate(self) -> None:
+        """Call `authenticate()` only if it hasn't been done recently."""
         if (
             self.last_authenticated is None
             or (datetime.now(tz=UTC) - self.last_authenticated).seconds
@@ -60,6 +66,8 @@ class BannerClient:
 
     @staticmethod
     def _check_authentication(function):  # noqa: ANN001
+        """A decorator for BannerClient methods that makes the method authenticate beforehand."""
+
         @wraps(function)
         def decorated(self: Self, *args, **kwargs):  # noqa: ANN002, ANN003
             nonlocal function
@@ -69,6 +77,7 @@ class BannerClient:
         return decorated
 
     def _handle_progress(self, progress: float) -> None:
+        """Report progress information whenever we find out more about it."""
         self.progress = progress
         if settings.DEBUG:
             self.logger.info("%2f%%", self.progress * 100)
@@ -82,6 +91,17 @@ class BannerClient:
         maximum: int | None = None,
         **kwargs: Any,
     ) -> Iterable[dict]:
+        """
+        For an endpoint that is paginated using HeadTech, continuously consume
+        each page until no more are available.
+
+        Arguments:
+            page_size: the number of items to request at a time.
+                If not present, the maximum page size possible,
+                as determined from the expected headers, is used.
+            maximum: a maximum item count to stop consum at.
+                If not present, all items are consumed.
+        """
         params = kwargs.pop("params", {})
         offset: int = 0
         while True:
@@ -163,7 +183,9 @@ class BannerClient:
 
 
 class BannerResources:
-    def __init__(self):
+    """A client for fetching Chairs resources from Banner."""
+
+    def __init__(self) -> None:
         self.client = BannerClient()
 
     def get_buildings(self, **kwargs: Any) -> Iterable[Building]:

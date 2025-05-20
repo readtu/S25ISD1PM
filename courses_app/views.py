@@ -94,6 +94,8 @@ def create_section(request: HttpRequest) -> HttpResponse:
             days_of_week=days_of_week,
             is_suggestion=False,
         )
+
+        # Perform audits
         section.full_clean()
         for Rule in RULES:
             try:
@@ -105,6 +107,7 @@ def create_section(request: HttpRequest) -> HttpResponse:
             section.save()
             success(request, f"Created {section}.")
             return redirect(period)
+
     return render(
         request,
         f"{__package__}/{create_section.__name__}.html",
@@ -124,6 +127,8 @@ def edit_section(request: HttpRequest, uuid: str) -> HttpResponse:
         section.capacity = int(request.POST["capacity"])
         section.start_time = request.POST["start_time"]
         section.end_time = request.POST["end_time"]
+
+        # Perform audits
         section.full_clean()
         for Rule in RULES:
             try:
@@ -135,6 +140,7 @@ def edit_section(request: HttpRequest, uuid: str) -> HttpResponse:
             section.save()
             success(request, f"Saved changes to {success}.")
             return redirect(section.period)
+
     return render(
         request,
         f"{__package__}/{edit_section.__name__}.html",

@@ -113,3 +113,24 @@ When in production, this app uses PostgreSQL as the database backend. This does 
 - **I'm getting an unexpected `ModuleNotFoundError`.** Make sure you have all the most recent dependencies installed from `requirements.txt`.
 - **I'm getting an `OperationalError: no such column/table`.** Make sure your database exists, has migrations made for models.py, and has the migrations applied. See the [databases](#database) section.
 - **The site looks unstyled.** Make sure you have compiled the SCSS. See the [Styling](#styling) section.
+
+---
+
+## Design
+
+### Data Model Notes
+
+- `Course`es can have multiple `Section`s, the latter being a particular time, professor, and place to offer a class. Both can be synced from Banner using BannerClient. They are stored inside `courses_app`.
+    - `Section`s can be `suggestion`s, which means they are not actually intended to be pushed to Banner—they are simply template / ghost courses that were copied from a previous semester the current one.
+- `Period`s take on three variants, determined by the 'type' field:
+    - "year"s are the top level academic period.
+    - "term"s are linked to years. They generally represent each of the broad seasons of the year, like spring, fall, online term, etc.
+    - "subterm"s are the deepest level of term. They are what `Sections`s link to. These are here so terms can be divided into subsections—like first-half Fall, second-half Fall, etc. Because `Section`s must be linked to subterms, not terms, even if a term will not be split into subseasons, then it is common and advisable to make a "Full Term" subterm.
+    Periods can be synced from Banner.
+- `School`s can have `Department`s, which can have `Subject`s. Those first two are stored in the Chairs database so authenticated users can be assigned to entire departments or schools for editing priveleges. `Subject`s are what define the codes ("COS"). These are stored inside `departments_app`.
+- `Buildings`s have `Room`s. Both of these are pulled from Banner. The "available" property of Buildings and Rooms is not reflected in Banner, but Chairs uses it to blacklist locations. These are stored inside `locations_app`.
+- `Change`s are linked to `Section`s, and they indicate if a section's information has been pushed to Banner. The presence of an accepted change linked to Sections indicates if a section's information has been pushed to Banner.
+
+### Other Design Notes
+
+- There are so many Django apps inside this project, an automatic import mechanism was set up to import any folder that ends in `_app` as a Django app. Make sure if you create new apps you prepare for this accordingly.
