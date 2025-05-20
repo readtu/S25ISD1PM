@@ -6,21 +6,79 @@ Developed by the Zeta Core team in the Spring 2025 semester for the Information 
 
 ## Configuration & Execution
 
+### Development
+
 1. Install [Python 3.13](https://python.org), and configure it properly on your PATH.
-2. Install all the necessary requirements from `requirements.txt` by running:
+2. **Optional**: configure a [Python virtual environment](https://docs.python.org/3/library/venv.html) in a directory.
+3. Install all the necessary requirements from `requirements.txt` by running:
+
     ```bash
     pip install -r requirements.txt
     ```
-3. Install [Dart Sass](https://sass-lang.com).
-4. Create the `.env` file.
-5. Instantiate the database by running:
+
+4. Install [Dart Sass](https://sass-lang.com), and run:
+
+    ```bash
+    ./compile_scss.sh
+    ```
+
+5. Create the `.env` file, which specifies:
+
+    ```ini
+    DEBUG=True
+    SECRET_KEY=<an_arbitrary_secret_key>
+    BANNER_API_KEY=<the_banner_api_key>
+    ```
+
+    Contact the project maintainer to recieve any missing credentials.
+
+6. Instantiate the database by running:
+
     ```bash
     python manage.py migrate
     ```
-6. Start the development server by clicking the Play button in the Run & Debug pane in Visual Studio Code, or otherwise run this command:
+
+7. If this is your first time cloning the repository, populate the local database by running:
+
+    ```bash
+    python manage.py populate
+    ```
+
+    This command only works in production.
+8. Start the development server by clicking the Play button in the Run & Debug pane in Visual Studio Code, or otherwise run this command:
+
     ```bash
     python manage.py runserver
     ```
+
+### Production
+
+This app is designed to be deployed using ASGI, to allow the app to support asynchronous features and WebSockets. Specifically, the app is designed to be [deployed with Daphne](https://docs.djangoproject.com/en/5.1/howto/deployment/asgi/daphne/). The server deploying the app should be configured with Nginx to reverse proxy to Daphne.
+
+For production, the .env file must also specify:
+
+```ini
+DATABASE_PASSWORD=<the_database_password>
+```
+
+Currently, the server is at `ssh isd2025s-1pm.cse.taylor.edu`, and can be authenticated into using CSE credentials.
+
+Some notes about deployment:
+
+- The global Nginx configuration file is stored in `/etc/nginx/nginx.conf`.
+- The configuration file for the Nginx site specific to Chairs is in `/etc/nginx/sites-available/chairs.conf`.
+- The repository files are stored in `/home/chairs_user/chairs/S25ISD1PM`. This is where you'll need to run `git pull` inside.
+- A Python virtual environment for storing the pip packages is stored in the parent directory of the repository, and can be activated by running `source /home/chairs_user/chairs/bin/activate`.
+- Nginx is configured as a service, and the systemd configuration file is stored in `/lib/systemd/system/nginx.service`.
+    - You can check on the service status using `systemctl status nginx`.
+    - If you change the configuration file above, you'll need to run `systemctl daemon-reload`.
+    - You can restart the service using `systemctl restart nginx`.
+- Daphne is also configured as a service, and the system configuration file is stored in `/etc/systemd/system/chairs_daphne.service`.
+    - You can check on the service status using `systemctl status chairs_daphne`.
+    - If you change the configuration file above, you'll need to run `systemctl daemon-reload`.
+    - You can restart the service using `systemctl restart chairs_daphne`.
+
+Currently, Chairs is deployed at `chairs.cse.taylor.edu`.
 
 ## Linting & Formatting
 
@@ -36,7 +94,7 @@ SCSS must be installed on the system. Check the website linked above for instruc
 
 Instead of pulling Bootstrap from a CDN like JSDeliver (which forces extra requests, introduces more security risks, and has the SCSS precompiled which prevents customization), this repo contains a fixed copy of the uncompiled Bootstrap SCSS source files. (The JS does not (yet) need to be customized and thus the precompiled source JS is simply included.) The SCSS files are imported in the `custom.scss` file, where any customization to variables can be made. The Bootstrap documentation side (linked above) contains tons of information on what the available variables for customization are, including everything from font-sizes to colors to border-radiuses to shadows.
 
-**The SCSS must be recompiled anytime a change is made to the custom.scss file.** A convenience command for doing just this is supplied with this repo and is shown below. [Make sure SCSS is installed for your platform](https://sass-lang.com/install/) before running the command.
+**The SCSS must be recompiled anytime a change is made to the custom.scss file.** A convenience command for doing just this is supplied with this repo and is shown below. [Make sure SCSS is installed for your platform](https://sass-lang.com/install/) before running the command. **Note**: currently, this command dumps out dozens of warnings because Bootstrap is using legacy SCSS syntax constructs. Ignore them, it compiles successfully.
 
 ```bash
 ./compile_scss.sh
@@ -50,20 +108,8 @@ When in production, this app uses PostgreSQL as the database backend. This does 
 
 ## Troubleshooting
 
--   **I'm getting `python: command not found` or `pip: command not found`** Try using `python3` and `pip3`. Make sure it's the right version of Python.
--   **I'm getting an unexpected `SyntaxError`.** Make sure you're using the right version of Python.
--   **I'm getting an unexpected `ModuleNotFoundError`.** Make sure you have all the most recent dependencies installed from `requirements.txt`.
--   **I'm getting an error when installing the dependencies.** Installing the `mysqlclient` library frequently causes a build error when it has not been installed before. MySQL must be installed on the system for the package install to work. So either:
-    1. Install MySQL on the current platform (sometimes easy, such as using brew install—sometimes hard)
-    2. Skip the MySQL dependency by commenting it out of the requirements file locally or installing the listed dependencies one-by-one
--   **I'm getting an `OperationalError: no such column/table`.** Make sure your database exists, has migrations made for models.py, and has the migrations applied. See the [databases](#database) section.
--   **The site looks unstyled.** Make sure you have compiled the SCSS. See the [Styling](#styling) section.
-
----
-
-- Install Nginx
-- /etc/nginx/nginx.conf
-- /etc/nginx/sites-available/chairs.conf
-- /home/chairs_user/chairs/S25ISD1PM
-- /home/chairs_user/chairs/bin/uwsgi
-- /etc/systemd/system/chairs_uwsgi.service
+- **I'm getting `python: command not found` or `pip: command not found`** Try using `python3` and `pip3`. Make sure it's the right version of Python.
+- **I'm getting an unexpected `SyntaxError`.** Make sure you're using the right version of Python.
+- **I'm getting an unexpected `ModuleNotFoundError`.** Make sure you have all the most recent dependencies installed from `requirements.txt`.
+- **I'm getting an `OperationalError: no such column/table`.** Make sure your database exists, has migrations made for models.py, and has the migrations applied. See the [databases](#database) section.
+- **The site looks unstyled.** Make sure you have compiled the SCSS. See the [Styling](#styling) section.
